@@ -1,0 +1,3667 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<!-- ============================================================
+     ZF COLLECTION TEMPLATES
+     Single-file React SPA — CDN React 18 + Babel Standalone
+     ============================================================ -->
+
+<head>
+  <!-- ── Meta & Viewport ─────────────────────────────────────── -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ZF Collection Templates</title>
+
+  <!-- ── Google Fonts ────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- ── Font Awesome Icons ───────────────────────────────────── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- ── React & Babel CDN ────────────────────────────────────── -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <style>
+    /* ============================================================
+       RESET & BOX-SIZING
+       Menghapus margin/padding bawaan browser di semua elemen
+       ============================================================ */
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ============================================================
+       CSS VARIABLES (DESIGN TOKENS)
+       Semua warna, ukuran, shadow, dan font disimpan di sini
+       agar mudah diubah dari satu tempat
+       ============================================================ */
+
+    :root {
+      /* Warna latar belakang */
+      --bg:          #070707;
+      --surface:     #111111;
+      --surface2:    #191919;
+      --surface3:    #222222;
+      --surface4:    #2a2a2a;
+
+      /* Warna border/garis */
+      --border:      rgba(255,255,255,0.06);
+      --border2:     rgba(255,255,255,0.13);
+      --border3:     rgba(255,255,255,0.22);
+
+      /* Warna teks */
+      --text:        #eeeeee;
+      --text-muted:  #666666;
+      --text-dim:    #333333;
+      --accent:      #ffffff;
+
+      /* Warna status */
+      --red:         #ff3d3d;
+      --green:       #3dff88;
+
+      /* Ukuran navigasi bawah */
+      --nav-h:       70px;
+
+      /* Border radius */
+      --r:           13px;
+      --r-sm:        9px;
+      --r-lg:        20px;
+      --r-xl:        28px;
+      --r-full:      999px;
+
+      /* Bayangan */
+      --shadow:      0 12px 40px rgba(0,0,0,0.6);
+      --shadow-sm:   0 4px 16px rgba(0,0,0,0.4);
+
+      /* Font */
+      --font:         'DM Sans', sans-serif;
+      --font-display: 'Bebas Neue', cursive;
+
+      /* Warna per kategori konten */
+      --c-model3d:   #FF6B35;
+      --c-animasi:   #FF3D6E;
+      --c-world:     #3DFF88;
+      --c-render:    #3D9EFF;
+      --c-unknow:    #8888AA;
+    }
+
+    /* ============================================================
+       HTML & BODY
+       Tinggi penuh, overflow disembunyikan (scroll diatur per-panel)
+       ============================================================ */
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ============================================================
+       APP SHELL
+       Struktur utama aplikasi: lebar max 480px, tengah layar
+       ============================================================ */
+
+    #root {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Sembunyikan scrollbar browser (scroll tetap berfungsi) */
+    ::-webkit-scrollbar { width: 0; height: 0; }
+
+    /* Reset link & tombol */
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font); cursor: pointer; border: none; outline: none; background: none; }
+    input, textarea { font-family: var(--font); outline: none; border: none; }
+
+    /* Kontainer utama aplikasi */
+    .app {
+      height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+      position: relative;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Area konten yang bisa di-scroll */
+    .page-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--nav-h) + 40px);
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      will-change: scroll-position;
+      transform: translateZ(0);
+      scroll-behavior: smooth;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* ============================================================
+       ANIMATIONS
+       Semua animasi keyframes yang digunakan di seluruh aplikasi
+       ============================================================ */
+
+    /* Muncul dari bawah dengan fade */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Geser masuk dari bawah layar */
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* Geser masuk dari atas layar */
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);     opacity: 1; }
+    }
+
+    /* Overlay gelap muncul dengan fade */
+    @keyframes overlayIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Animasi loading/spinner berputar */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Animasi kedip-kedip (pulse) */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+
+    /* Setiap layar (screen) muncul dengan fadeUp */
+    .screen {
+      animation: fadeUp 0.12s ease-out forwards;
+    }
+
+    /* ============================================================
+       LOGIN SCREEN
+       Halaman masuk user / admin, ditampilkan sebelum login
+       ============================================================ */
+
+    .login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 32px 20px 40px;
+      gap: 24px;
+      background: var(--bg);
+      animation: none;
+    }
+
+    /* Bagian branding: logo + nama di halaman login */
+    .login-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Lingkaran logo di halaman login */
+    .login-logo-circle {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #FF6B35, #FF3D6E);
+      border-radius: 50%; /* Bulat sempurna */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 32px auto 40px; /* Auto kiri-kanan agar selalu di tengah */
+      box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4); /* Efek cahaya/glow */
+      border: 3px solid rgba(255, 255, 255, 0.1);      /* Border tipis transparan */
+    }
+
+    /* Ikon di dalam lingkaran logo login */
+    .login-logo-circle i {
+      font-size: 35px;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    /* Teks nama brand kecil di bawah logo */
+    .login-brand-name {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Kartu form login */
+    .login-card {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-xl);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Judul di dalam kartu login */
+    .login-card-title {
+      font-size: 17px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    /* Satu grup input login (User atau Admin) */
+    .login-section { margin-bottom: 14px; }
+
+    /* Label kecil di atas input (contoh: "USER", "ADMIN") */
+    .login-section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+
+    /* Baris input + tombol login bersebelahan */
+    .login-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Field input teks login */
+    .login-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      padding: 11px 16px;
+      font-size: 14px;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .login-input:focus       { border-color: var(--border3); }
+    .login-input::placeholder { color: var(--text-muted); }
+
+    /* Tombol "Masuk" di login */
+    .login-btn {
+      background: white;
+      color: black;
+      border-radius: var(--r-full);
+      padding: 11px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: opacity 0.2s, transform 0.1s;
+      flex-shrink: 0;
+    }
+    .login-btn:active   { transform: scale(0.95); }
+    .login-btn:disabled { opacity: 0.4; }
+
+    /* Pesan error di bawah input login */
+    .login-error {
+      font-size: 11px;
+      color: var(--red);
+      margin-top: 5px;
+      padding-left: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Garis pemisah antara bagian User dan Admin */
+    .login-hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0 14px;
+    }
+
+    /* Catatan informasi di bagian bawah kartu login */
+    .login-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 12px;
+      background: var(--surface2);
+      border-radius: var(--r);
+      margin-top: 4px;
+    }
+    .login-note i    { color: var(--text-muted); margin-top: 1px; font-size: 13px; flex-shrink: 0; }
+    .login-note span { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    /* ============================================================
+       BOTTOM NAVIGATION
+       Navigasi bawah berbentuk pil putih dengan ikon
+       ============================================================ */
+
+    /* Kontainer luar navigasi bawah */
+    .bottom-nav {
+      height: 76px;
+      flex-shrink: 0;
+      padding: 8px 12px 14px;
+      background: transparent;
+      position: relative;
+      z-index: 50;
+      margin-bottom: 50px;
+    }
+
+    /* Pil putih yang menampung semua tombol nav */
+    .nav-inner {
+      height: 100%;
+      background: #ffffff;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.10);
+      transform: translateZ(0);
+    }
+
+    /* Setiap tombol di navigasi bawah */
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      flex: 1;
+      height: 100%;
+      border-radius: 50%;
+      color: #999999;
+      font-size: 20px;
+      position: relative;
+      transition: color 0.2s ease, transform 0.15s ease;
+    }
+    .nav-btn:active { transform: scale(0.82); }
+
+    /* Ikon di dalam tombol nav */
+    .nav-btn i {
+      font-size: 20px;
+      display: block;
+    }
+
+    /* Teks label kecil di bawah ikon nav */
+    .nav-btn-label {
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: 0.2px;
+    }
+
+    /* Tombol nav yang sedang aktif */
+    .nav-btn.active { color: #1a1a1a; }
+
+    /* Tombol Upload (bulat khusus di tengah nav) */
+    .nav-btn.nav-special {
+      flex: 0 0 52px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      color: #ffffff;
+      font-size: 22px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      flex-direction: column;
+      gap: 0;
+    }
+    .nav-btn.nav-special i            { font-size: 22px; }
+    .nav-btn.nav-special .nav-btn-label { display: none; }
+    .nav-btn.nav-special.active       { background: #333; }
+
+    /* Tombol nav yang dinonaktifkan (khusus admin) */
+    .nav-btn.nav-disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Badge notifikasi merah di sudut tombol nav */
+    .nav-badge {
+      position: absolute;
+      top: 2px; right: 8px;
+      background: var(--red);
+      color: white;
+      font-size: 9px;
+      font-weight: 800;
+      min-width: 15px; height: 15px;
+      border-radius: var(--r-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      line-height: 1;
+    }
+
+    /* ============================================================
+       SCREEN TITLE
+       Judul besar bergaya display di setiap halaman
+       ============================================================ */
+
+    .screen-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 1.5px;
+      color: var(--text);
+      padding: 20px 16px 4px;
+    }
+
+    /* ============================================================
+       HOME SCREEN
+       Halaman utama: header, search, filter, dan daftar konten
+       ============================================================ */
+
+    /* Header sticky di bagian atas home */
+    .home-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 20;
+    }
+
+    /* Baris logo + nama brand di header */
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    /* Kotak/area ikon logo di header home */
+    .brand-logo-box {
+      background: transparent;
+      border: none;
+      font-size: 25px;                                    /* Ukuran ikon */
+      color: #FF6B35;                                     /* Warna orange */
+      text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);     /* Efek glow */
+      width: auto;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+    }
+
+    /* Nama brand / judul app di header */
+    .brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+    }
+
+    /* Tombol ikon bulat kecil (contoh: tombol refresh) */
+    .icon-btn {
+      width: 34px; height: 34px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, transform 0.3s;
+    }
+    .icon-btn:active { transform: rotate(180deg); color: white; }
+
+    /* Pembungkus search bar */
+    .search-wrap { padding: 0 16px 10px; }
+
+    /* Search bar utama */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      padding: 10px 14px;
+      transition: border-color 0.3s;
+    }
+    .search-bar:focus-within         { border-color: var(--border3); }
+    .search-bar > i                  { color: var(--text-muted); font-size: 13px; flex-shrink: 0; }
+    .search-bar input                { flex: 1; background: transparent; color: var(--text); font-size: 14px; font-weight: 500; }
+    .search-bar input::placeholder   { color: var(--text-muted); }
+
+    /* Tombol hapus teks di search bar */
+    .search-clear { color: var(--text-muted); font-size: 12px; padding: 0; }
+
+    /* Baris chip filter (ALL, Model 3D, Animasi, dst.) */
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      padding: 0 16px 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Satu chip filter */
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 5px 13px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .filter-chip.active {
+      background: transparent;
+      color: white;
+      border-color: white;
+    }
+
+    /* ============================================================
+       CONTENT LIST — Kartu konten gaya horizontal
+       ============================================================ */
+
+    /* Grid daftar konten (vertikal, satu kolom) */
+    .content-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0 12px 8px;
+    }
+
+    /* Satu kartu konten */
+    .c-card {
+      background: var(--bg);
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 4px;
+      border-bottom: 1px solid var(--border);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transform: translateZ(0);
+      transition: background 0.15s;
+    }
+    .c-card:active { background: var(--surface2); }
+
+    /* Thumbnail/gambar kecil di kartu konten */
+    .c-card-thumb {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      background: #1a1a1a;
+    }
+    .c-card-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      image-rendering: auto;
+    }
+
+    /* Nonaktifkan interaksi touch pada gambar agar tidak bisa disimpan/disalin */
+    .c-card-thumb img,
+    .popup-thumb img,
+    .upload-preview-box img {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      pointer-events: none;
+    }
+
+    /* Badge tipe konten di sudut kiri bawah thumbnail */
+    .c-card-label {
+      position: absolute;
+      bottom: 5px; left: 5px;
+      background: rgba(0,0,0,0.82);
+      border-radius: 20px;
+      padding: 2px 7px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #FFD700;
+    }
+    .c-card-rating i { font-size: 9px; }
+
+    /* Ikon share di sudut kanan atas thumbnail */
+    .c-card-share {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 24px; height: 24px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #333;
+    }
+
+    /* Bagian kanan kartu: nama, kategori, deskripsi, tombol */
+    .c-card-body {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* Label kategori di atas nama konten */
+    .c-card-category {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+      margin-bottom: 1px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Nama konten */
+    .c-card-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    /* Deskripsi singkat konten */
+    .c-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Baris bawah kartu: tombol download & ellipsis */
+    .c-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    /* Tombol "Unduh" (badge/pill) di kartu konten */
+    .c-card-badge {
+      background: #FF6B35;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .c-card-badge:active {
+      transform: scale(0.88);
+      opacity: 0.75;
+    }
+
+    /* Tombol bulat kecil (ellipsis/menu di kartu) */
+    .c-card-dl-btn {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 12px;
+      background: transparent;
+      transition: border-color 0.2s, color 0.2s, background 0.15s;
+    }
+    .c-card-dl-btn:active {
+      background: var(--surface3);
+      border-color: rgba(255,255,255,0.5);
+      color: white;
+    }
+    .c-card-dl-btn:focus {
+      border-color: rgba(255,255,255,0.5);
+      color: white;
+      outline: none;
+    }
+
+    /* Disembunyikan — tipe ditampilkan lewat badge */
+    .c-card-type { display: none; }
+
+    /* Tombol tiga titik (share) di sudut kanan kartu */
+    .card-three-dot {
+      position: absolute;
+      top: 14px; right: 0;
+      width: 28px; height: 28px;
+      background: var(--surface3);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, color 0.2s;
+      z-index: 10;
+    }
+    .card-three-dot:active {
+      border-color: rgba(255,255,255,0.5);
+      color: white;
+      transform: scale(0.85);
+      transition: transform 0.15s ease, border-color 0.2s, color 0.2s;
+    }
+    .card-three-dot:focus {
+      border-color: rgba(255,255,255,0.5);
+      color: white;
+      outline: none;
+    }
+
+    /* Menu dropdown admin yang muncul dari kartu */
+    .card-admin-menu {
+      position: absolute;
+      bottom: 38px; right: 8px;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      overflow: hidden;
+      z-index: 10;
+      min-width: 108px;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.15s ease;
+    }
+    .card-admin-menu button {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 100%;
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .card-admin-menu button:last-child { color: var(--red); }
+    .card-admin-menu button:active     { background: var(--surface4); }
+
+    /* Digantikan oleh .c-card-body */
+    .c-card-info { display: none; }
+
+    /* ============================================================
+       CONTENT POPUP (BOTTOM SHEET)
+       Sheet dari bawah layar saat konten diklik/dibuka
+       ============================================================ */
+
+    /* Overlay gelap di belakang popup */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      backdrop-filter: blur(5px);
+      animation: overlayIn 0.2s ease;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Sheet konten popup (muncul dari bawah) */
+    .popup-sheet {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      border: 1px solid var(--border2);
+      border-bottom: none;
+      overflow: hidden;
+      animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+
+    /* Gambar thumbnail besar di popup */
+    .popup-thumb {
+      width: 100%;
+      aspect-ratio: 4/3;
+      position: relative;
+      overflow: hidden;
+    }
+    .popup-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Tombol love/hati di sudut kiri atas popup */
+    .popup-love-btn {
+      position: absolute;
+      top: 12px; left: 12px;
+      width: 38px; height: 38px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 50%;
+      color: white;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+      transition: all 0.2s;
+    }
+    .popup-love-btn.loved { color: var(--red); background: rgba(255,61,61,0.18); }
+
+    /* Tombol tutup (X) di sudut kanan atas popup */
+    .popup-close-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 34px; height: 34px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 50%;
+      color: white;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    /* Isi teks popup (di bawah thumbnail) */
+    .popup-body { padding: 16px 18px 20px; }
+
+    /* Baris judul + tipe konten */
+    .popup-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    /* Nama konten di popup */
+    .popup-name {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      flex: 1;
+    }
+
+    /* Badge tipe konten di popup */
+    .popup-type {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-top: 4px;
+    }
+
+    /* Deskripsi konten di popup */
+    .popup-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+
+    /* Baris info uploader di popup */
+    .popup-uploader-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .popup-uploader {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .popup-uploader i { font-size: 20px; color: var(--text-muted); }
+
+    /* Tombol ke sosial media uploader di popup */
+    .popup-yt-btn {
+      width: 38px; height: 38px;
+      background: var(--surface3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .popup-yt-btn:active { transform: scale(0.9); }
+
+    /* Baris tombol aksi di popup (Download + Share) */
+    .popup-action-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Tombol Download utama di popup */
+    .btn-dl {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: white;
+      color: black;
+      border-radius: var(--r-full);
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 800;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-dl:active { transform: scale(0.97); }
+
+    /* Tombol Share bulat di popup */
+    .share-wrap { position: relative; }
+    .btn-share {
+      width: 46px; height: 46px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dropdown platform share (WA, TG, dsb.) */
+    .share-dropdown {
+      position: absolute;
+      bottom: 54px; right: 0;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      overflow: hidden;
+      min-width: 160px;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.15s ease;
+      z-index: 20;
+    }
+    .share-dropdown button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px 15px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .share-dropdown button:active { background: var(--surface4); }
+    .share-dropdown button i      { width: 16px; text-align: center; }
+
+    /* ============================================================
+       NOTIFICATIONS SCREEN
+       Halaman "Apa yang Baru" — daftar konten terbaru
+       ============================================================ */
+
+    /* Daftar notifikasi (dipisah garis tipis) */
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      margin-top: 4px;
+    }
+
+    /* Satu baris item notifikasi */
+    .notif-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      background: var(--bg);
+      padding: 11px 16px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s;
+    }
+    .notif-item:active { background: var(--surface2); }
+
+    /* Badge "NEW" merah di pojok item notifikasi */
+    .badge-new {
+      position: absolute;
+      top: 8px; left: 4px;
+      background: var(--red);
+      color: white;
+      font-size: 8px;
+      font-weight: 900;
+      padding: 2px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      z-index: 2;
+    }
+
+    /* Thumbnail kecil di item notifikasi */
+    .notif-thumb {
+      width: 58px; height: 58px;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .notif-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Info teks notifikasi (nama & tipe) */
+    .notif-info { flex: 1; overflow: hidden; }
+    .notif-name {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .notif-type { font-size: 11px; font-weight: 600; }
+
+    /* Waktu relatif di kanan item notifikasi */
+    .notif-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    /* ============================================================
+       PROFILE SCREEN
+       Halaman profil kreator / info user
+       ============================================================ */
+
+    /* Kartu profil utama */
+    .profile-card {
+      margin: 8px 16px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-xl);
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Badge peran (Admin / Info Kreator) */
+    .profile-role-badge {
+      background: var(--surface3);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: var(--r-full);
+      margin-bottom: 14px;
+    }
+
+    /* Foto profil bulat */
+    .profile-avatar {
+      width: 84px; height: 84px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border2);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      position: relative;
+      cursor: pointer;
+    }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Overlay kamera saat mode edit profil admin */
+    .avatar-cam-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: white;
+    }
+
+    /* Nama profil */
+    .profile-name-text {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    /* Bio / deskripsi singkat profil */
+    .profile-bio-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+
+    /* Garis pemisah horizontal di profil */
+    .profile-divider {
+      width: 100%;
+      border-top: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    /* Baris ikon sosial media di profil */
+    .social-row {
+      display: flex;
+      gap: 10px;
+    }
+    .social-icon-btn {
+      width: 44px; height: 44px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--text);
+      transition: background 0.2s, transform 0.15s;
+    }
+    .social-icon-btn:active { transform: scale(0.9); }
+
+    /* Input field saat mode edit profil admin */
+    .edit-field {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 13px;
+      font-size: 13px;
+      color: var(--text);
+      transition: border-color 0.2s;
+      margin-top: 6px;
+    }
+    .edit-field:focus       { border-color: var(--border3); }
+    .edit-field::placeholder { color: var(--text-muted); }
+
+    /* Label bagian di mode edit profil */
+    .edit-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 16px;
+      margin-bottom: 4px;
+      width: 100%;
+    }
+
+    /* Bungkus tombol aksi profil (Edit, Keluar, dsb.) */
+    .profile-actions-wrap {
+      padding: 0 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Tombol aksi general (Edit Profil, Keluar, dsb.) */
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--r-full);
+      font-size: 14px;
+      font-weight: 700;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .action-btn:active    { transform: scale(0.98); }
+    .action-btn.primary   { background: white; color: black; }
+    .action-btn.secondary { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); }
+    .action-btn.danger    { background: rgba(255,61,61,0.1); border: 1px solid rgba(255,61,61,0.25); color: var(--red); }
+
+    /* Bar status user yang sedang login */
+    .user-status-bar {
+      margin: 0 16px 16px;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .user-status-bar strong { color: var(--text); }
+
+    /* ============================================================
+       WISHLIST SCREEN
+       Halaman daftar konten yang disimpan user
+       ============================================================ */
+
+    /* Baris header wishlist: judul + tombol kontrol */
+    .wishlist-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-right: 16px;
+    }
+
+    /* Baris tombol kontrol (pilih, hapus) di header wishlist */
+    .wishlist-ctrl-row {
+      display: flex;
+      gap: 6px;
+    }
+    .ctrl-icon-btn {
+      width: 34px; height: 34px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .ctrl-icon-btn.on  { background: white; color: black; border-color: white; }
+    .ctrl-icon-btn.del { background: rgba(255,61,61,0.1); color: var(--red); border-color: rgba(255,61,61,0.3); }
+
+    /* Baris tombol sortir wishlist */
+    .wl-sort-bar {
+      display: flex;
+      gap: 7px;
+      padding: 4px 16px 10px;
+    }
+    .wl-sort-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* Daftar item wishlist */
+    .wl-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    /* Satu item di wishlist */
+    .wl-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      background: var(--bg);
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .wl-item.sel { background: var(--surface2); }
+
+    /* Checkbox saat mode seleksi wishlist */
+    .wl-checkbox {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      border: 2px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+      transition: all 0.15s;
+    }
+    .wl-checkbox.checked { background: white; border-color: white; color: black; }
+
+    /* Thumbnail item wishlist */
+    .wl-thumb {
+      width: 62px; height: 62px;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .wl-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Info teks item wishlist */
+    .wl-info {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .wl-name {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Label tipe konten di wishlist */
+    .wl-type-lbl { font-size: 11px; font-weight: 600; }
+
+    /* Tombol download di item wishlist */
+    .wl-dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      padding: 4px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      width: fit-content;
+    }
+
+    /* Tombol hapus (tempat sampah) di item wishlist */
+    .wl-trash-btn {
+      width: 30px; height: 30px;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: color 0.2s;
+    }
+    .wl-trash-btn:active { color: var(--red); }
+
+    /* ============================================================
+       UPLOAD SCREEN (Admin Only)
+       Halaman upload konten baru — hanya bisa diakses admin
+       ============================================================ */
+
+    /* Kartu form upload */
+    .upload-card {
+      margin: 4px 16px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-xl);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    /* Baris thumbnail upload: preview + tombol */
+    .upload-thumb-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    /* Kotak preview thumbnail sebelum upload */
+    .upload-preview-box {
+      flex: 1;
+      background: var(--surface2);
+      border: 1.5px dashed var(--border2);
+      border-radius: var(--r);
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .upload-preview-box:active  { border-color: var(--border3); }
+    .upload-preview-box i       { font-size: 26px; color: var(--text-muted); }
+    .upload-preview-box span    { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .upload-preview-box img     { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Tombol-tombol samping preview (Upload & Batal) */
+    .upload-side-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .upload-side-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 9px 13px;
+      border-radius: var(--r-full);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .upload-side-btn.confirm { background: var(--surface3); color: white; border: 1px solid var(--border2); }
+    .upload-side-btn.cancel  { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* Input teks pada form upload */
+    .upload-input {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      padding: 11px 16px;
+      font-size: 13px;
+      color: var(--text);
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .upload-input:focus        { border-color: var(--border3); }
+    .upload-input::placeholder { color: var(--text-muted); }
+    .upload-input.err          { border-color: rgba(255,61,61,0.5); }
+
+    /* Teks error validasi field upload */
+    .field-err {
+      font-size: 11px;
+      color: var(--red);
+      padding-left: 8px;
+      margin-top: -4px;
+    }
+
+    /* Dropdown selector tipe konten */
+    .type-selector { position: relative; }
+    .type-selector-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 11px 16px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    /* Isi dropdown tipe konten */
+    .type-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0; right: 0;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      overflow: hidden;
+      z-index: 15;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.15s ease;
+    }
+
+    /* Setiap pilihan dalam dropdown */
+    .type-opt {
+      display: block;
+      width: 100%;
+      padding: 11px 16px;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      transition: background 0.12s;
+    }
+    .type-opt:active { background: var(--surface4); }
+    .type-opt.sel    { background: var(--surface4); }
+
+    /* Tombol submit "Tambahkan Konten" */
+    .upload-submit-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: white;
+      color: black;
+      border-radius: var(--r-full);
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 800;
+      margin-top: 4px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .upload-submit-btn:active { transform: scale(0.98); }
+
+    /* Pemisah garis dengan teks di tengah (contoh: "Info Uploader") */
+    .upload-section-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 2px;
+    }
+    .upload-section-divider::before,
+    .upload-section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border2);
+    }
+    .upload-section-divider span {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* Baris input sosial uploader: platform + username */
+    .uploader-social-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .social-uname-input {
+      flex: 1;
+      border-radius: var(--r-full) !important;
+    }
+
+    /* Tombol pilih platform sosial media uploader */
+    .social-platform-wrap { position: relative; }
+    .social-platform-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 13px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      transition: border-color 0.2s;
+      height: 100%;
+    }
+    .social-platform-btn:active         { border-color: var(--border3); }
+    .social-platform-btn i:first-child  { font-size: 15px; }
+
+    /* Dropdown pilihan platform sosial media uploader */
+    .social-platform-dropdown {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 0;
+      min-width: 150px;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      overflow: hidden;
+      z-index: 20;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.15s ease;
+    }
+
+    /* Setiap pilihan platform di dropdown */
+    .social-plat-opt {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      padding: 10px 14px;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: left;
+      transition: background 0.12s;
+    }
+    .social-plat-opt i        { font-size: 15px; width: 16px; text-align: center; }
+    .social-plat-opt:active   { background: var(--surface4); }
+    .social-plat-opt.sel      { background: var(--surface4); }
+
+    /* Toast notifikasi hijau saat upload berhasil */
+    .toast-success {
+      margin: 0 16px 10px;
+      background: rgba(61,255,136,0.08);
+      border: 1px solid rgba(61,255,136,0.25);
+      border-radius: var(--r);
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: fadeUp 0.2s ease;
+    }
+
+    /* ============================================================
+       EDIT MODAL — FULL SCREEN
+       Layar penuh saat admin mengedit konten
+       ============================================================ */
+
+    /* Overlay full-screen (menutupi seluruh area app) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      margin: 0 auto;
+      animation: fadeUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Header bar atas modal: tombol kembali + judul */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    /* Tombol kembali (panah kiri) di header modal */
+    .modal-back-btn {
+      width: 36px; height: 36px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .modal-back-btn:active { background: var(--surface3); transform: scale(0.9); }
+
+    /* Judul modal (ditampilkan di tengah header) */
+    .modal-header-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 1.2px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    /* Area konten modal yang bisa di-scroll */
+    .modal-card {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Label kecil di atas setiap grup field */
+    .modal-field-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      padding-left: 4px;
+    }
+
+    /* Grup field (label + input) */
+    .modal-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* Baris tombol Batal & Simpan di footer modal */
+    .modal-btn-row {
+      display: flex;
+      gap: 8px;
+    }
+    .modal-btn-row button { flex: 1; }
+
+    /* Baris tombol Cancel & Done tepat di bawah selector Tipe */
+    .modal-inline-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .modal-inline-btn-row button { flex: 1; }
+
+    /* ============================================================
+       SHARED UTILITIES
+       Komponen dan state umum yang dipakai di beberapa layar
+       ============================================================ */
+
+    /* Tampilan kosong (tidak ada data / konten) */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 64px 24px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .empty-state i { font-size: 36px; opacity: 0.35; }
+    .empty-state p { font-size: 14px; font-weight: 500; }
+
+    /* Tampilan terkunci (fitur tidak tersedia untuk role ini) */
+    .lock-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 72px 24px;
+      text-align: center;
+    }
+    .lock-state i { font-size: 42px; color: var(--text-dim); }
+    .lock-state p { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+
+    /* Animasi spinner loading */
+    .spinner { animation: spin 0.8s linear infinite; }
+
+    /* Placeholder gradient saat thumbnail tidak tersedia */
+    .thumb-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .thumb-placeholder i { font-size: 28px; color: rgba(255,255,255,0.15); }
+
+    /* ── FAQ Section ── */
+    .faq-wrap {
+      padding: 0 16px 24px;
+      margin-top: 8px;
+    }
+    .faq-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 1.2px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: var(--r);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: left;
+      background: none;
+    }
+    .faq-answer {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      padding: 0 16px 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Root mount point untuk React -->
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // ============================================================
+    //  ZF COLLECTION TEMPLATES — REACT SPA
+    //  Single-file, no bundler. CDN React 18 + Babel standalone.
+    // ============================================================
+
+    // Destructuring hooks React yang dipakai di seluruh aplikasi
+    const {
+      useState, useEffect, useContext, createContext,
+      useRef, useCallback, useMemo, useReducer
+    } = React;
+
+    // ============================================================
+    //  CONSTANTS
+    //  Nilai tetap yang dipakai di seluruh aplikasi
+    // ============================================================
+
+    // Email admin (untuk validasi login admin)
+    const ADMIN_EMAIL    = 'zfirr@admin.com';
+
+    // Regex validasi username: hanya huruf kecil, angka, & simbol tertentu
+    const USERNAME_REGEX = /^[a-z0-9\^\_\*\#\$]+$/;
+
+    // Warna teks untuk setiap tipe konten
+    const TYPE_COLORS = {
+      'Model 3D' : '#ffffff',
+      'Animasi'  : '#ffffff',
+      'World'    : '#ffffff',
+      'Render'   : '#ffffff',
+      'unknow'   : '#ffffff',
+    };
+
+    // Daftar tipe konten yang tersedia
+    const TYPES = ['Model 3D', 'Animasi', 'World', 'Render', 'unknow'];
+
+    // Daftar label/kategori konten
+    const CATEGORIES = ['Furniture', 'Cosmetic', 'Vehicle', 'Chars', 'Weapon'];
+
+    // Warna untuk setiap label/kategori konten
+    const CATEGORY_COLORS = {
+      'Furniture' : '#F59E0B',
+      'Cosmetic'  : '#8B5CF6',
+      'Vehicle'   : '#60A5FA',
+      'Chars'     : '#16A34A',
+      'Weapon'    : '#F87171',
+    };
+
+    // Daftar platform sosial media yang bisa dipilih uploader
+    const SOCIAL_PLATFORMS = [
+      { key: 'YouTube',   icon: 'fab fa-youtube',   color: '#FF0000', url: u => `https://youtube.com/@${u}`       },
+      { key: 'TikTok',    icon: 'fab fa-tiktok',    color: '#ffffff', url: u => `https://tiktok.com/@${u}`        },
+      { key: 'Instagram', icon: 'fab fa-instagram', color: '#E1306C', url: u => `https://instagram.com/${u}`      },
+      { key: 'Twitter/X', icon: 'fab fa-x-twitter', color: '#ffffff', url: u => `https://x.com/${u}`              },
+      { key: 'Facebook',  icon: 'fab fa-facebook',  color: '#1877F2', url: u => `https://facebook.com/${u}`      },
+      { key: 'Twitch',    icon: 'fab fa-twitch',    color: '#9147FF', url: u => `https://twitch.tv/${u}`          },
+    ];
+
+    // Helper: menghasilkan URL sosial media dari objek social uploader
+    function getSocialUrl(social) {
+      if (!social?.username) return null;
+      const plat = SOCIAL_PLATFORMS.find(p => p.key === social.platform);
+      return plat ? plat.url(social.username) : null;
+    }
+
+    // Gradient warna latar untuk thumbnail yang tidak punya gambar
+    const DEMO_GRADIENTS = [
+      'linear-gradient(140deg,#1a3a2e,#2d6b4f)',
+      'linear-gradient(140deg,#2b1a2e,#6b2d68)',
+      'linear-gradient(140deg,#1a222e,#2d4a7c)',
+      'linear-gradient(140deg,#2e1a1a,#7c2d2d)',
+      'linear-gradient(140deg,#1a2a2e,#2d6b68)',
+      'linear-gradient(140deg,#1f2a1a,#4a7c30)',
+      'linear-gradient(140deg,#1a1f2e,#2d3b7c)',
+      'linear-gradient(140deg,#2e2a1a,#7c6b2d)',
+    ];
+
+    // Konten demo bawaan (muncul jika belum ada data tersimpan)
+    const DEMO_CONTENT = [
+      { id:'d3', name:'Fantasy Village',   description:'Full fantasy village world environment.', url:'#', type:'World',    category:'Village',     uploadedAt: Date.now()-7200000,     gradient: DEMO_GRADIENTS[2] },
+    ];
+
+    // ============================================================
+    //  UTILITIES
+    //  Fungsi-fungsi pembantu yang dipakai di banyak tempat
+    // ============================================================
+
+    // Helper penyimpanan localStorage (get & set dengan JSON)
+    const Storage = {
+      get(key, def = null) {
+        try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; }
+        catch { return def; }
+      },
+      set(key, v) {
+        try { localStorage.setItem(key, JSON.stringify(v)); } catch {}
+      },
+    };
+
+    // Mengubah timestamp menjadi teks relatif (contoh: "5m yang lalu")
+    function timeAgo(ts) {
+      const d   = Date.now() - ts;
+      const mnt = Math.floor(d / 60000);
+      const jam = Math.floor(d / 3600000);
+      const hari = Math.floor(d / 86400000);
+      const bln  = Math.floor(d / (86400000 * 30));
+      const thn  = Math.floor(d / (86400000 * 365));
+      if (mnt < 1)  return 'baru saja';
+      if (jam < 1)  return `${mnt}m yang lalu`;
+      if (hari < 1) return `${jam}j yang lalu`;
+      if (bln < 1)  return `${hari}h yang lalu`;
+      if (thn < 1)  return `${bln}b yang lalu`;
+      return `${thn}th yang lalu`;
+    }
+
+    // Mengecek apakah konten diunggah dalam 24 jam terakhir (untuk badge "NEW")
+    function isNew(ts) { return (Date.now() - ts) < 86400000; }
+
+    // Memilih gradient acak dari daftar DEMO_GRADIENTS
+    function randGradient() {
+      return DEMO_GRADIENTS[Math.floor(Math.random() * DEMO_GRADIENTS.length)];
+    }
+
+    // ============================================================
+    //  APP CONTEXT & PROVIDER
+    //  State global aplikasi: user, konten, wishlist, notifikasi
+    // ============================================================
+
+    const AppCtx = createContext();
+
+    function AppProvider({ children }) {
+      // --- State yang disimpan ke localStorage ---
+      const [currentUser,  setCurrentUser] = useState(() => Storage.get('zf_user'));
+      const [content,      setContent]     = useState(() => {
+        const s = Storage.get('zf_content');
+        return (s && s.length) ? s : DEMO_CONTENT;
+      });
+      const [users,        setUsers]       = useState(() => Storage.get('zf_users', []));
+      const [adminProfile, setAdminP]      = useState(() => Storage.get('zf_admin_profile', {
+        name      : 'ZFirr',
+        bio       : 'Kunjungi media sosial saya lainnya',
+        photo     : 'https://ibb.co.com/QjCD2sTj',
+        tiktok    : 'https://tiktok.com/@zfrmnx',
+        youtube   : 'https://youtube.com/@zfrmnx',
+        instagram : 'https://instagram.com/zfirmandani_mc',
+        saweria   : 'https://saweria.co/frmnzx',
+      }));
+      const [readIds, setReadIds] = useState(() => new Set(Storage.get('zf_read', [])));
+
+      // --- State UI sementara (tidak disimpan) ---
+      const [activeTab, setActiveTab] = useState('home');
+      const [popup,     setPopup]     = useState(null); // id konten yang sedang dibuka
+
+      // --- Nilai turunan ---
+      const isAdmin = currentUser?.role === 'admin';
+
+      // --- Sinkronisasi state ke localStorage setiap ada perubahan ---
+      useEffect(() => { Storage.set('zf_user',          currentUser);   }, [currentUser]);
+      useEffect(() => { Storage.set('zf_content',       content);       }, [content]);
+      useEffect(() => { Storage.set('zf_users',         users);         }, [users]);
+      useEffect(() => { Storage.set('zf_admin_profile', adminProfile);  }, [adminProfile]);
+      useEffect(() => { Storage.set('zf_read',          [...readIds]);  }, [readIds]);
+
+      // --- AUTH: Login & Logout ---
+      function login(role, identifier, password) {
+        if (role === 'admin') {
+          if (identifier.trim() !== ADMIN_EMAIL) return 'Email admin tidak valid';
+          setCurrentUser({ role: 'admin', username: 'admin' });
+          return null;
+        }
+        const uname = identifier.trim();
+        const pwd   = (password || '').trim();
+        if (!uname)                      return 'Username tidak boleh kosong';
+        if (uname.includes(' '))         return 'Username tidak boleh ada spasi';
+        if (!USERNAME_REGEX.test(uname)) return 'Hanya huruf kecil, angka, & simbol: ^ _ * # $';
+        if (!pwd)                        return 'Password tidak boleh kosong';
+        if (pwd.length < 4)              return 'Password minimal 4 karakter';
+
+        const existing = users.find(u => u.username === uname);
+        if (existing) {
+          // Username sudah terdaftar — cek password
+          if (existing.password !== pwd) return 'Password salah';
+        } else {
+          // Username baru — daftarkan dengan password
+          setUsers(prev => [...prev, { username: uname, password: pwd, createdAt: Date.now(), wishlist: [], history: [] }]);
+        }
+        setCurrentUser({ role: 'user', username: uname });
+        return null;
+      }
+
+      function logout() {
+        setCurrentUser(null);
+        setActiveTab('home');
+        setPopup(null);
+      }
+
+      // --- USER DATA: Ambil data user berdasarkan username ---
+      const getUserData = useCallback(
+        (uname) => users.find(u => u.username === uname) || { username: uname, wishlist: [], history: [] },
+        [users]
+      );
+
+      // --- WISHLIST: Cek & toggle konten di wishlist user ---
+      const isWishlisted = useCallback((id) => {
+        if (!currentUser || isAdmin) return false;
+        return (getUserData(currentUser.username).wishlist || []).includes(id);
+      }, [currentUser, isAdmin, getUserData]);
+
+      function toggleWishlist(id) {
+        if (!currentUser || isAdmin) return;
+        const uname = currentUser.username;
+        setUsers(prev => {
+          const idx     = prev.findIndex(u => u.username === uname);
+          const base    = idx >= 0 ? prev[idx] : { username: uname, createdAt: Date.now(), history: [] };
+          const wl      = base.wishlist || [];
+          const updated = { ...base, wishlist: wl.includes(id) ? wl.filter(i => i !== id) : [...wl, id] };
+          if (idx >= 0) return prev.map((u, i) => i === idx ? updated : u);
+          return [...prev, updated];
+        });
+      }
+
+      function getWishlistContent() {
+        if (!currentUser || isAdmin) return [];
+        return (getUserData(currentUser.username).wishlist || [])
+          .map(id => content.find(c => c.id === id))
+          .filter(Boolean);
+      }
+
+      // --- CONTENT CRUD: Tambah, hapus, update konten ---
+      function addContent(item) {
+        const newItem = { ...item, id: Date.now().toString(), uploadedAt: Date.now(), gradient: randGradient() };
+        setContent(prev => [newItem, ...prev]);
+      }
+
+      function deleteContent(id) {
+        setContent(prev => prev.filter(c => c.id !== id));
+        // Hapus juga dari semua wishlist user
+        setUsers(prev => prev.map(u => ({
+          ...u,
+          wishlist: (u.wishlist || []).filter(wid => wid !== id),
+        })));
+      }
+
+      function updateContent(id, updates) {
+        setContent(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+      }
+
+      // --- ADMIN PROFILE: Update data profil admin ---
+      function updateAdminProfile(updates) {
+        setAdminP(prev => ({ ...prev, ...updates }));
+      }
+
+      // --- NOTIFICATIONS: 15 konten terbaru sebagai notifikasi ---
+      const notifications = useMemo(
+        () => [...content].sort((a, b) => b.uploadedAt - a.uploadedAt).slice(0, 15),
+        [content]
+      );
+
+      // Jumlah notifikasi yang belum dibaca
+      const unreadCount = useMemo(
+        () => notifications.filter(n => !readIds.has(n.id)).length,
+        [notifications, readIds]
+      );
+
+      function markAllRead() {
+        setReadIds(new Set(notifications.map(n => n.id)));
+      }
+
+      return (
+        <AppCtx.Provider value={{
+          currentUser, isAdmin, users,
+          activeTab, setActiveTab,
+          popup, setPopup,
+          content, addContent, deleteContent, updateContent,
+          adminProfile, updateAdminProfile,
+          login, logout,
+          isWishlisted, toggleWishlist, getWishlistContent,
+          notifications, unreadCount, markAllRead,
+        }}>
+          {children}
+        </AppCtx.Provider>
+      );
+    }
+
+    // Hook shorthand untuk mengakses context aplikasi
+    const useApp = () => useContext(AppCtx);
+
+    // ============================================================
+    //  BOTTOM NAVIGATION
+    //  Navigasi bawah: Home, Notif, Upload, Wishlist, Profil
+    // ============================================================
+
+    function BottomNav() {
+      const { activeTab, setActiveTab, isAdmin, unreadCount } = useApp();
+      const [showToast, setShowToast] = useState(false);
+
+      // Definisi tab navigasi bawah
+      const tabs = [
+        { id: 'home',     icon: 'fa-house',  label: 'Home'                          },
+        { id: 'notif',    icon: 'fa-bell',   label: 'Notif',   badge: unreadCount   },
+        { id: 'upload',   icon: 'fa-plus',   special: true,    adminOnly: true       },
+        { id: 'wishlist', icon: 'fa-heart',  label: 'Wishlist'                      },
+        { id: 'profile',  icon: 'fa-user',   label: 'Info'                          },
+      ];
+
+      return (
+        <>
+          {/* Toast peringatan saat user non-admin menekan tombol Upload */}
+          {showToast && (
+            <div style={{
+              position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+              background: '#222', color: 'white', padding: '8px 18px',
+              borderRadius: 999, fontSize: 13, fontWeight: 600,
+              zIndex: 9999, whiteSpace: 'nowrap',
+              animation: 'fadeUp 0.2s ease',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <i className="fas fa-lock" style={{ marginRight: 6, color: '#FF6B35' }} />
+              Fitur khusus Admin
+            </div>
+          )}
+
+          {/* Navigasi bawah */}
+          <nav className="bottom-nav">
+            <div className="nav-inner">
+              {tabs.map(t => {
+                const disabled = t.adminOnly && !isAdmin;
+                return (
+                  <button
+                    key={t.id}
+                    className={`nav-btn${t.special ? ' nav-special' : ''}${activeTab === t.id ? ' active' : ''}${disabled ? ' nav-disabled' : ''}`}
+                    style={t.special ? { background: isAdmin ? '#FF6B35' : '#333333' } : {}}
+                    onClick={e => {
+                      if (disabled) {
+                        setShowToast(true);
+                        setTimeout(() => setShowToast(false), 2000);
+                        return;
+                      }
+                      // Animasi tekan tombol
+                      const btn = e.currentTarget;
+                      btn.style.transition = 'transform 0.15s ease';
+                      btn.style.transform  = 'scale(0.82)';
+                      setTimeout(() => { btn.style.transform = 'scale(1)'; }, 150);
+                      setActiveTab(t.id);
+                    }}
+                    title={disabled ? 'Hanya Admin' : t.label || t.id}
+                  >
+                    <i className={`fas ${t.icon}`} />
+                    {!t.special && <span className="nav-btn-label">{t.label}</span>}
+                    {t.badge > 0 && <span className="nav-badge">{t.badge > 9 ? '9+' : t.badge}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        </>
+      );
+    }
+
+    // ============================================================
+    //  LOGIN SCREEN
+    //  Halaman masuk: pilih login sebagai User atau Admin
+    // ============================================================
+
+    function LoginScreen() {
+      const { login, users } = useApp();
+      const [userInput,    setUserInput]    = useState('');
+      const [passInput,    setPassInput]    = useState('');
+      const [showPass,     setShowPass]     = useState(false);
+      const [adminInput,   setAdminInput]   = useState('');
+      const [userErr,      setUserErr]      = useState('');
+      const [adminErr,     setAdminErr]     = useState('');
+      const [loading,      setLoading]      = useState('');
+
+      // Apakah username yang diketik sudah terdaftar (untuk label tombol)
+      const isExisting = users.some(u => u.username === userInput.trim());
+
+      // Fungsi login dengan delay kecil untuk efek loading
+      function handleLogin(role) {
+        setLoading(role);
+        setTimeout(() => {
+          const err = role === 'user'
+            ? login('user', userInput, passInput)
+            : login('admin', adminInput);
+          if (err) {
+            if (role === 'user') setUserErr(err);
+            else                 setAdminErr(err);
+            setLoading('');
+          }
+        }, 400);
+      }
+
+      return (
+        <div className="login-screen">
+          {/* Logo bulat di atas */}
+          <div className="login-logo-circle">
+            <i className="fas fa-user-shield" />
+          </div>
+
+          {/* Kartu form login */}
+          <div className="login-card">
+            <p className="login-card-title">Masuk sebagai</p>
+
+            {/* Bagian login USER */}
+            <div className="login-section">
+              <p className="login-section-label">User</p>
+
+              {/* Input Username */}
+              <div className="login-input-row" style={{ marginBottom: 8 }}>
+                <input
+                  className="login-input"
+                  type="text"
+                  placeholder="Username"
+                  value={userInput}
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  onChange={e => { setUserInput(e.target.value); setUserErr(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin('user')}
+                />
+              </div>
+
+              {/* Input Password + tombol show/hide + tombol Masuk */}
+              <div className="login-input-row">
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input
+                    className="login-input"
+                    style={{ width: '100%', paddingRight: 38 }}
+                    type={showPass ? 'text' : 'password'}
+                    placeholder={isExisting ? 'Password' : 'Buat password'}
+                    value={passInput}
+                    autoComplete="new-password"
+                    onChange={e => { setPassInput(e.target.value); setUserErr(''); }}
+                    onKeyDown={e => e.key === 'Enter' && handleLogin('user')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(p => !p)}
+                    style={{
+                      position: 'absolute', right: 12, top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--text-muted)', fontSize: 13, padding: 0,
+                    }}
+                  >
+                    <i className={`fas ${showPass ? 'fa-eye-slash' : 'fa-eye'}`} />
+                  </button>
+                </div>
+                <button
+                  className="login-btn"
+                  disabled={loading === 'user'}
+                  onClick={() => handleLogin('user')}
+                >
+                  {loading === 'user'
+                    ? <i className="fas fa-spinner spinner" />
+                    : isExisting ? 'Masuk' : 'Daftar'}
+                </button>
+              </div>
+
+              {/* Info kecil: daftar vs masuk */}
+              <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6, paddingLeft: 4 }}>
+                {!userInput.trim()
+                  ? <><i className="fas fa-user-plus" style={{ marginRight: 4 }} />Daftarkan username mu</>
+                  : isExisting
+                    ? <><i className="fas fa-circle-xmark" style={{ color: '#FF6B35', marginRight: 4 }} />Username sudah terpakai - jika ini kamu, masukkan password nya</>
+                    : <><i className="fas fa-circle-check" style={{ color: 'var(--green)', marginRight: 4 }} />Username tersedia - masukkan password untuk melanjutkan</>
+                }
+              </p>
+
+              {userErr && (
+                <p className="login-error">
+                  <i className="fas fa-exclamation-circle" /> {userErr}
+                </p>
+              )}
+            </div>
+
+            {/* Garis pemisah User / Admin */}
+            <hr className="login-hr" />
+
+            {/* Bagian login ADMIN */}
+            <div className="login-section">
+              <p className="login-section-label">Admin</p>
+              <div className="login-input-row">
+                <input
+                  className="login-input"
+                  type="email"
+                  placeholder="Email admin"
+                  value={adminInput}
+                  autoComplete="off"
+                  onChange={e => { setAdminInput(e.target.value); setAdminErr(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin('admin')}
+                />
+                <button
+                  className="login-btn"
+                  disabled={loading === 'admin'}
+                  onClick={() => handleLogin('admin')}
+                >
+                  {loading === 'admin' ? <i className="fas fa-spinner spinner" /> : 'Masuk'}
+                </button>
+              </div>
+              {adminErr && (
+                <p className="login-error">
+                  <i className="fas fa-exclamation-circle" /> {adminErr}
+                </p>
+              )}
+            </div>
+
+            {/* Catatan informasi di bawah form login */}
+            <div className="login-note">
+              <i className="fas fa-circle-info" />
+              <span>Login untuk menyimpan Aktivitas.</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  EDIT CONTENT MODAL — FULL SCREEN
+    //  Layar penuh untuk edit konten (hanya Admin)
+    // ============================================================
+
+    function EditModal({ item, onClose, onSave }) {
+      const [form, setForm] = useState({
+        name        : item.name,
+        description : item.description || '',
+        url         : item.url,
+        type        : item.type,
+      });
+      const [showTypeDD, setShowTypeDD] = useState(false);
+      const [errors,     setErrors]     = useState({});
+
+      // Validasi field wajib sebelum simpan
+      function validate() {
+        const errs = {};
+        if (!form.name.trim()) errs.name = 'Nama wajib diisi';
+        if (!form.url.trim())  errs.url  = 'URL wajib diisi';
+        setErrors(errs);
+        return !Object.keys(errs).length;
+      }
+
+      function handleSave() {
+        if (!validate()) return;
+        onSave(item.id, form);
+        onClose();
+      }
+
+      return (
+        <div className="modal-overlay">
+
+          {/* ── Header: tombol kembali + judul ── */}
+          <div className="modal-header">
+            <button className="modal-back-btn" onClick={onClose} title="Kembali">
+              <i className="fas fa-arrow-left" />
+            </button>
+            <span className="modal-header-title">EDIT KONTEN</span>
+          </div>
+
+          {/* ── Area scroll berisi field-field edit ── */}
+          <div className="modal-card">
+
+            {/* Field Nama */}
+            <div className="modal-field-group">
+              <p className="modal-field-label">Nama</p>
+              <input
+                className={`upload-input${errors.name ? ' err' : ''}`}
+                placeholder="Nama konten"
+                value={form.name}
+                onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setErrors(p => ({ ...p, name: '' })); }}
+              />
+              {errors.name && <p className="field-err"><i className="fas fa-exclamation-circle" /> {errors.name}</p>}
+            </div>
+
+            {/* Field Deskripsi */}
+            <div className="modal-field-group">
+              <p className="modal-field-label">Deskripsi</p>
+              <input
+                className="upload-input"
+                placeholder="Deskripsi singkat (opsional)"
+                value={form.description}
+                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              />
+            </div>
+
+            {/* Field URL Download */}
+            <div className="modal-field-group">
+              <p className="modal-field-label">URL Download</p>
+              <input
+                className={`upload-input${errors.url ? ' err' : ''}`}
+                placeholder="https://..."
+                value={form.url}
+                onChange={e => { setForm(f => ({ ...f, url: e.target.value })); setErrors(p => ({ ...p, url: '' })); }}
+              />
+              {errors.url && <p className="field-err"><i className="fas fa-exclamation-circle" /> {errors.url}</p>}
+            </div>
+
+            {/* Dropdown Tipe Konten */}
+            <div className="modal-field-group">
+              <p className="modal-field-label">Tipe</p>
+              <div className="type-selector">
+                <button className="type-selector-btn" onClick={() => setShowTypeDD(p => !p)}>
+                  <span style={{ color: TYPE_COLORS[form.type] || '#fff' }}>{form.type}</span>
+                  <i className={`fas fa-chevron-${showTypeDD ? 'up' : 'down'}`} />
+                </button>
+                {showTypeDD && (
+                  <div className="type-dropdown">
+                    {TYPES.map(t => (
+                      <button
+                        key={t}
+                        className={`type-opt${form.type === t ? ' sel' : ''}`}
+                        style={{ color: TYPE_COLORS[t] }}
+                        onClick={() => { setForm(f => ({ ...f, type: t })); setShowTypeDD(false); }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tombol Cancel & Done di bawah selector Tipe */}
+            <div className="modal-inline-btn-row">
+              <button className="action-btn secondary" onClick={onClose}>
+                <i className="fas fa-times" /> Cancel
+              </button>
+              <button className="action-btn primary" onClick={handleSave}>
+                <i className="fas fa-check" /> Done
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  CONTENT CARD
+    //  Komponen kartu konten satu baris (di daftar Home)
+    // ============================================================
+
+    const ContentCard = React.memo(function ContentCard({ item, onOpen, onDelete, onEdit, isAdmin, isMenuOpen, setOpenMenuId }) {
+      const setMenuOpen = (val) => setOpenMenuId(val ? item.id : null);
+      const menuRef     = useRef();
+      const typeColor   = TYPE_COLORS[item.type] || '#888';
+
+      return (
+        <div className="c-card">
+          {/* Kiri: Thumbnail + badge tipe konten */}
+          <div className="c-card-thumb" style={{ background: item.gradient || '#1a1a1a' }}>
+            {item.thumbnail
+              ? <img src={item.thumbnail} alt={item.name} loading="lazy" decoding="async" />
+              : <div className="thumb-placeholder"><i className="fas fa-image" /></div>
+            }
+            {/* Badge tipe di sudut kiri bawah thumbnail */}
+            <div className="c-card-label">
+              <i className="fas fa-cube" style={{ color: typeColor }} />
+              <span style={{ color: typeColor }}>{item.type}</span>
+            </div>
+          </div>
+
+          {/* Kanan: Nama, kategori, deskripsi, tombol */}
+          <div className="c-card-body">
+            <p className="c-card-name">{item.name}</p>
+            <div className="c-card-category">
+              <i className="fas fa-cube" style={{ fontSize: 9, color: CATEGORY_COLORS[item.category] || '#888' }} />
+              <span style={{ color: CATEGORY_COLORS[item.category] || '#888' }}>{item.category || 'Umum'}</span>
+            </div>
+
+            {item.description && (
+              <p className="c-card-sub">{item.description}</p>
+            )}
+
+            {/* Baris bawah: tombol Unduh + menu ellipsis */}
+            <div className="c-card-bottom">
+              <a
+                href={item.url}
+                target="_blank"
+                className="c-card-badge"
+                style={{ background: 'white', color: 'black', display: 'flex', alignItems: 'center', gap: 5, textDecoration: 'none' }}
+                onClick={e => { e.stopPropagation(); if (item.url === '#') e.preventDefault(); }}
+              >
+                <i className="fas fa-download" /> Unduh
+              </a>
+
+              {/* Tombol ellipsis + dropdown menu */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="c-card-dl-btn"
+                  onClick={e => { e.stopPropagation(); setMenuOpen(!isMenuOpen); }}
+                >
+                  <i className="fas fa-ellipsis" />
+                </button>
+                {isMenuOpen && (
+                  <div
+                    className="card-admin-menu"
+                    style={{ top: 36, right: 0, bottom: 'auto', position: 'absolute' }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Tombol Share */}
+                    <button onClick={() => {
+                      const url = item.url && item.url !== '#' ? item.url : window.location.href;
+                      if (navigator.share) { navigator.share({ title: item.name, url }); }
+                      else { navigator.clipboard?.writeText(url).catch(() => {}); alert('Link disalin!'); }
+                      setMenuOpen(false);
+                    }}>
+                      <i className="fas fa-share-nodes" /> Share
+                    </button>
+                    {/* Tombol Download */}
+                    <button onClick={() => { window.open(item.url, '_blank'); setMenuOpen(false); }}>
+                      <i className="fas fa-download" /> Download
+                    </button>
+                    {/* Tombol Edit & Hapus (hanya Admin) */}
+                    {isAdmin && (
+                      <>
+                        <button onClick={() => { onEdit(item); setMenuOpen(false); }}>
+                          <i className="fas fa-pen" /> Edit
+                        </button>
+                        <button onClick={() => { onDelete(item.id); setMenuOpen(false); }}>
+                          <i className="fas fa-trash" /> Hapus
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tombol share di sudut kanan atas kartu */}
+          <button
+            className="card-three-dot"
+            onClick={e => {
+              e.stopPropagation();
+              const url = item.url && item.url !== '#' ? item.url : window.location.href;
+              if (navigator.share) {
+                navigator.share({ title: item.name, url });
+              } else {
+                navigator.clipboard?.writeText(url).catch(() => {});
+                alert('Link disalin!');
+              }
+            }}
+          >
+            <i className="fas fa-share-nodes" />
+          </button>
+
+          {/* Menu admin floating (posisi dari ref tombol) */}
+          {isAdmin && isMenuOpen && (
+            <div
+              className="card-admin-menu"
+              style={{ position: 'fixed', zIndex: 9999 }}
+              ref={el => {
+                if (el && menuRef.current) {
+                  const rect    = menuRef.current.getBoundingClientRect();
+                  el.style.top  = rect.bottom + 4 + 'px';
+                  el.style.left = rect.left - el.offsetWidth + rect.width + 'px';
+                }
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <button onClick={() => { onEdit(item); setMenuOpen(false); }}>
+                <i className="fas fa-pen" /> Edit
+              </button>
+              <button onClick={() => { onDelete(item.id); setMenuOpen(false); }}>
+                <i className="fas fa-trash" /> Hapus
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    });
+
+    // ============================================================
+    //  HOME SCREEN
+    //  Halaman utama: search, filter, dan daftar semua konten
+    // ============================================================
+
+    function HomeScreen() {
+      const { content, isAdmin, deleteContent, updateContent, setPopup } = useApp();
+      const [search,      setSearch]      = useState('');
+      const [filter,      setFilter]      = useState('ALL');
+      const [editingItem, setEditingItem] = useState(null);
+      const [openMenuId,  setOpenMenuId]  = useState(null);
+      const scrollRef = useRef();
+
+      // Tutup menu dropdown saat halaman di-scroll
+      useEffect(() => {
+        const el = document.querySelector('.page-content');
+        if (!el) return;
+        const handler = () => setOpenMenuId(null);
+        el.addEventListener('scroll', handler, { passive: true });
+        return () => el.removeEventListener('scroll', handler);
+      }, []);
+
+      // Tutup menu dropdown saat klik di luar area menu
+      useEffect(() => {
+        if (!openMenuId) return;
+        const handler = () => setOpenMenuId(null);
+        document.addEventListener('click', handler);
+        return () => document.removeEventListener('click', handler);
+      }, [openMenuId]);
+
+      // Filter dan cari konten berdasarkan tipe & teks search
+      const filtered = useMemo(() => {
+        return content.filter(c => {
+          const matchType   = filter === 'ALL' || c.type === filter;
+          const matchSearch = !search.trim() ||
+            (c.name     || '').toLowerCase().includes(search.toLowerCase()) ||
+            (c.category || '').toLowerCase().includes(search.toLowerCase());
+          return matchType && matchSearch;
+        });
+      }, [content, search, filter]);
+
+      const handleOpen   = useCallback((item) => {
+        if (item.url && item.url !== '#') window.open(item.url, '_blank');
+      }, []);
+      const handleDelete = useCallback((id) => deleteContent(id), [deleteContent]);
+      const handleEdit   = useCallback((i)  => setEditingItem(i), []);
+
+      const filterTabs = ['ALL', ...TYPES];
+
+      return (
+        <div className="screen">
+          {/* Header sticky: logo + tombol refresh */}
+          <div className="home-header">
+            <div className="brand-row">
+              <div className="brand-logo-box">
+                <i className="fas fa-link" />
+              </div>
+              <span className="brand-title">ZF Collection Templates</span>
+            </div>
+            <button
+              className="icon-btn"
+              title="Refresh"
+              onClick={e => {
+                const icon = e.currentTarget.querySelector('i');
+                e.currentTarget.style.transform = 'scale(0.8)';
+                e.currentTarget.style.transition = 'transform 0.15s ease';
+                icon.style.transition = 'transform 0.4s ease';
+                icon.style.transform  = 'rotate(360deg)';
+                setTimeout(() => window.location.reload(), 400);
+              }}
+            >
+              <i className="fas fa-arrows-rotate" />
+            </button>
+          </div>
+
+          {/* Search bar */}
+          <div className="search-wrap">
+            <div className="search-bar">
+              <i className="fas fa-magnifying-glass" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+              {search && (
+                <button className="search-clear" onClick={() => setSearch('')}>
+                  <i className="fas fa-times" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Chip filter tipe konten */}
+          <div className="filter-row">
+            {filterTabs.map(t => {
+              const isActive = filter === t;
+              const color    = t === 'ALL' ? '#fff' : (TYPE_COLORS[t] || '#fff');
+              return (
+                <button
+                  key={t}
+                  className={`filter-chip${isActive ? ' active' : ''}`}
+                  style={isActive ? { borderColor: color, color } : {}}
+                  onClick={() => setFilter(t)}
+                >
+                  {t === 'unknow' ? '???' : t}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Daftar konten / state kosong */}
+          {filtered.length === 0
+            ? (
+              <div className="empty-state">
+                <i className="fas fa-folder-open" />
+                <p>Tidak ada konten ditemukan</p>
+              </div>
+            )
+            : (
+              <div className="content-grid" ref={scrollRef}>
+                {filtered.map((item, idx) => (
+                  <ContentCard
+                    key={item.id}
+                    item={item}
+                    isAdmin={isAdmin}
+                    onOpen={() => handleOpen(item)}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                    isMenuOpen={openMenuId === item.id}
+                    setOpenMenuId={setOpenMenuId}
+                    style={{ animationDelay: `${idx * 30}ms` }}
+                  />
+                ))}
+              </div>
+            )
+          }
+
+          {/* Modal edit konten (muncul jika admin klik Edit) */}
+          {editingItem && (
+            <EditModal
+              item={editingItem}
+              onClose={() => setEditingItem(null)}
+              onSave={(id, updates) => { updateContent(id, updates); setEditingItem(null); }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  CONTENT POPUP
+    //  Bottom sheet detail konten: thumbnail, info, download, share
+    // ============================================================
+
+    function ContentPopup() {
+      const { popup, setPopup, content, isWishlisted, toggleWishlist, currentUser, adminProfile } = useApp();
+      const [shareOpen, setShareOpen] = useState(false);
+
+      if (!popup) return null;
+      const item = content.find(c => c.id === popup);
+      if (!item)  return null;
+
+      const loved = isWishlisted(popup);
+
+      // Fungsi share ke berbagai platform
+      function handleShare(platform) {
+        const url  = item.url === '#' ? window.location.href : item.url;
+        const text = `Cek "${item.name}" di ZF Collection Templates`;
+        const urls = {
+          copy      : null,
+          whatsapp  : `https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`,
+          telegram  : `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+          discord   : `https://discord.com/channels/@me`,
+          instagram : null,
+        };
+        if (platform === 'copy' || platform === 'instagram') {
+          navigator.clipboard?.writeText(url).catch(() => {});
+          alert('Link disalin ke clipboard!');
+        } else {
+          window.open(urls[platform], '_blank');
+        }
+        setShareOpen(false);
+      }
+
+      return (
+        <div className="popup-overlay" onClick={() => { setPopup(null); setShareOpen(false); }}>
+          <div className="popup-sheet" onClick={e => e.stopPropagation()}>
+            {/* Thumbnail besar */}
+            <div className="popup-thumb" style={{ background: item.gradient || '#1a1a1a' }}>
+              {item.thumbnail
+                ? <img src={item.thumbnail} alt={item.name} />
+                : <div className="thumb-placeholder"><i className="fas fa-image" style={{ fontSize: 40 }} /></div>
+              }
+              {/* Tombol love (hanya untuk user, bukan admin) */}
+              {currentUser && currentUser.role !== 'admin' && (
+                <button
+                  className={`popup-love-btn${loved ? ' loved' : ''}`}
+                  onClick={() => toggleWishlist(popup)}
+                >
+                  <i className={`${loved ? 'fas' : 'far'} fa-heart`} />
+                </button>
+              )}
+              {/* Tombol tutup popup */}
+              <button className="popup-close-btn" onClick={() => setPopup(null)}>
+                <i className="fas fa-times" />
+              </button>
+            </div>
+
+            {/* Isi teks popup */}
+            <div className="popup-body">
+              {/* Judul + badge tipe konten */}
+              <div className="popup-title-row">
+                <span className="popup-name">{item.name}</span>
+                <span className="popup-type" style={{ color: TYPE_COLORS[item.type] }}>{item.type}</span>
+              </div>
+
+              {/* Deskripsi konten */}
+              {item.description && <p className="popup-desc">{item.description}</p>}
+
+              {/* Baris info uploader + tombol sosial media */}
+              <div className="popup-uploader-row">
+                <div className="popup-uploader">
+                  <i className="fas fa-circle-user" />
+                  <span>@{item.uploaderUsername || 'admin'}</span>
+                </div>
+                {(() => {
+                  const social = item.uploaderSocial;
+                  const href   = getSocialUrl(social);
+                  const plat   = social?.platform ? SOCIAL_PLATFORMS.find(p => p.key === social.platform) : null;
+                  if (!href || !plat) return null;
+                  return (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="popup-yt-btn"
+                      title={plat.key}
+                      style={{ color: plat.color }}
+                    >
+                      <i className={plat.icon} />
+                    </a>
+                  );
+                })()}
+              </div>
+
+              {/* Tombol Download + Share */}
+              <div className="popup-action-row">
+                <a
+                  href={item.url}
+                  target="_blank"
+                  className="btn-dl"
+                  download
+                  onClick={e => item.url === '#' && e.preventDefault()}
+                >
+                  <i className="fas fa-download" /> Download
+                </a>
+
+                <div className="share-wrap">
+                  <button className="btn-share" onClick={() => setShareOpen(p => !p)}>
+                    <i className="fas fa-share-nodes" />
+                  </button>
+                  {/* Dropdown pilihan platform share */}
+                  {shareOpen && (
+                    <div className="share-dropdown">
+                      <button onClick={() => handleShare('copy')}>
+                        <i className="fas fa-link" /> Salin Link
+                      </button>
+                      <button onClick={() => handleShare('whatsapp')}>
+                        <i className="fab fa-whatsapp" style={{ color: '#25d366' }} /> WhatsApp
+                      </button>
+                      <button onClick={() => handleShare('telegram')}>
+                        <i className="fab fa-telegram" style={{ color: '#2ca5e0' }} /> Telegram
+                      </button>
+                      <button onClick={() => handleShare('instagram')}>
+                        <i className="fab fa-instagram" style={{ color: '#e1306c' }} /> Instagram
+                      </button>
+                      <button onClick={() => handleShare('discord')}>
+                        <i className="fab fa-discord" style={{ color: '#7289da' }} /> Discord
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  NOTIFICATIONS SCREEN
+    //  Halaman "Apa yang Baru": daftar konten terbaru
+    // ============================================================
+
+    function NotificationsScreen() {
+      const { notifications, readIds, markAllRead, setPopup } = useApp();
+
+      // Tandai semua notifikasi sudah dibaca saat halaman dibuka
+      useEffect(() => { markAllRead(); }, []);
+
+      return (
+        <div className="screen">
+          <h1 className="screen-title">APA YANG BARU</h1>
+
+          {notifications.length === 0
+            ? (
+              <div className="empty-state">
+                <i className="fas fa-bell-slash" />
+                <p>Belum ada konten</p>
+              </div>
+            )
+            : (
+              <div className="notif-list">
+                {notifications.map(item => (
+                  <div
+                    key={item.id}
+                    className="notif-item"
+                    onClick={() => setPopup(item.id)}
+                  >
+                    {/* Badge "NEW" jika diunggah dalam 24 jam terakhir */}
+                    {isNew(item.uploadedAt) && <span className="badge-new">NEW</span>}
+
+                    {/* Thumbnail notifikasi */}
+                    <div className="notif-thumb" style={{ background: item.gradient }}>
+                      {item.thumbnail && <img src={item.thumbnail} alt="" loading="lazy" decoding="async" />}
+                    </div>
+
+                    {/* Info konten: nama + tipe */}
+                    <div className="notif-info">
+                      <p className="notif-name">{item.name}</p>
+                      <span className="notif-type" style={{ color: TYPE_COLORS[item.type] }}>{item.type}</span>
+                    </div>
+
+                    {/* Waktu relatif */}
+                    <span className="notif-time">{timeAgo(item.uploadedAt)}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          }
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  FAQ SECTION
+    //  Komponen akordion FAQ di bagian bawah halaman Profil
+    // ============================================================
+
+    const FAQ_ITEMS = [
+      { q: 'Apa itu ZF Collection?',            a: 'ZF Collection adalah platform untuk mengumpulkan dan berbagi template model 3D, animasi, world, dan render.' },
+      { q: 'Bagaimana cara mengunduh konten?',   a: 'Pilih konten lalu tekan tombol Unduh. Kamu akan diarahkan ke link download yang sudah disediakan.' },
+      { q: 'Bagaimana jika link terhapus?',                     a: 'Hubungi Admin lewat media sosial yang tersedia di profil.' },
+      { q: 'Bagaimana cara menyimpan konten?',   a: 'Login terlebih dahulu, lalu tekan ikon hati ♥ pada konten yang ingin kamu simpan ke Wishlist.' },
+      { q: 'Siapa yang bisa mengupload konten?', a: 'Hanya Admin yang bisa mengupload konten. Hubungi Admin jika ingin menambahkan kontenmu.' },
+    ];
+
+    function FaqItem({ q, a, open, onToggle }) {
+      return (
+        <div className="faq-item">
+          <button className="faq-question" onClick={onToggle}>
+            <span>{q}</span>
+            <i className={`fas fa-chevron-${open ? 'up' : 'down'}`} style={{ fontSize: 12, color: 'var(--text-muted)', flexShrink: 0, marginLeft: 8 }} />
+          </button>
+          {open && <p className="faq-answer">{a}</p>}
+        </div>
+      );
+}
+
+    function FaqSection() {
+      const [openIdx, setOpenIdx] = useState(null);
+      return (
+        <div className="faq-wrap">
+          <p className="faq-title">FAQ</p>
+          {FAQ_ITEMS.map((item, i) => (
+            <FaqItem
+              key={i}
+              {...item}
+              open={openIdx === i}
+              onToggle={() => setOpenIdx(openIdx === i ? null : i)}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  PROFILE SCREEN
+    //  Halaman profil: info kreator + edit (Admin) + logout
+    // ============================================================
+
+    function ProfileScreen() {
+      const { adminProfile, updateAdminProfile, isAdmin, logout, currentUser } = useApp();
+      const [editMode, setEditMode] = useState(false);
+      const [form,     setForm]     = useState({ ...adminProfile });
+      const fileRef                 = useRef();
+
+      // Handle upload foto profil admin (dengan kompresi gambar)
+      function handlePhotoUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX    = 720;
+            let w = img.width, h = img.height;
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else       { w = Math.round(w * MAX / h); h = MAX; }
+            canvas.width  = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.7);
+            setForm(f => ({ ...f, photo: compressed }));
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function handleSave() {
+        updateAdminProfile(form);
+        setEditMode(false);
+      }
+
+      function handleCancel() {
+        setForm({ ...adminProfile });
+        setEditMode(false);
+      }
+
+      return (
+        <div className="screen">
+          <h1 className="screen-title">PROFIL</h1>
+
+          {/* Kartu profil utama */}
+          <div className="profile-card">
+            {/* Badge peran */}
+            {isAdmin  && <span className="profile-role-badge">Admin</span>}
+            {!isAdmin && <span className="profile-role-badge">Info Kreator</span>}
+
+            {/* Foto profil */}
+            <div
+              className="profile-avatar"
+              onClick={() => isAdmin && editMode && fileRef.current?.click()}
+            >
+              {adminProfile.photo
+                ? <img src={adminProfile.photo} alt="Profile" />
+                : <i className="fas fa-circle-user" />
+              }
+              {/* Overlay kamera saat mode edit */}
+              {isAdmin && editMode && (
+                <div className="avatar-cam-overlay"><i className="fas fa-camera" /></div>
+              )}
+            </div>
+            {/* Input file foto (tersembunyi) */}
+            {isAdmin && (
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+            )}
+
+            {/* Nama & bio: tampilan biasa atau form edit */}
+            {editMode ? (
+              <>
+                <input
+                  className="edit-field"
+                  value={form.name}
+                  placeholder="Nama"
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  style={{ textAlign: 'center', marginBottom: 4 }}
+                />
+                <input
+                  className="edit-field"
+                  value={form.bio}
+                  placeholder="Bio / Deskripsi"
+                  onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
+                  style={{ textAlign: 'center' }}
+                />
+              </>
+            ) : (
+              <>
+                <p className="profile-name-text">{adminProfile.name}</p>
+                <p className="profile-bio-text">{adminProfile.bio}</p>
+              </>
+            )}
+
+            <div className="profile-divider" />
+
+            {/* Baris ikon sosial media */}
+            <div className="social-row">
+              <a href={adminProfile.tiktok}    target="_blank" className="social-icon-btn" title="TikTok">
+                <i className="fab fa-tiktok" />
+              </a>
+              <a href={adminProfile.youtube}   target="_blank" className="social-icon-btn" title="YouTube">
+                <i className="fab fa-youtube" style={{ color: '#ff0000' }} />
+              </a>
+              <a href={adminProfile.instagram} target="_blank" className="social-icon-btn" title="Instagram">
+                <i className="fab fa-instagram" style={{ color: '#e1306c' }} />
+              </a>
+              <button className="social-icon-btn" title="Saweria (Donasi)"
+                onClick={() => window.open(adminProfile.saweria, '_blank')}>
+                ☕
+              </button>
+            </div>
+
+            {/* Form edit link sosial media (hanya saat mode edit) */}
+            {editMode && (
+              <>
+                <p className="edit-section-label">Link Sosial Media</p>
+                <input
+                  className="edit-field"
+                  value={form.tiktok}
+                  placeholder="TikTok URL"
+                  onChange={e => setForm(f => ({ ...f, tiktok: e.target.value }))}
+                />
+                <input
+                  className="edit-field"
+                  value={form.youtube}
+                  placeholder="YouTube URL"
+                  onChange={e => setForm(f => ({ ...f, youtube: e.target.value }))}
+                />
+                <input
+                  className="edit-field"
+                  value={form.instagram}
+                  placeholder="Instagram URL"
+                  onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))}
+                />
+                <input
+                  className="edit-field"
+                  value={form.saweria}
+                  placeholder="Saweria URL"
+                  onChange={e => setForm(f => ({ ...f, saweria: e.target.value }))}
+                />
+              </>
+            )}
+          </div>
+
+          {/* Tombol aksi: Edit Profil / Simpan / Batal / Keluar */}
+          <div className="profile-actions-wrap">
+            {isAdmin && (
+              editMode
+                ? (
+                  <>
+                    <button className="action-btn primary"   onClick={handleSave}>Simpan Perubahan</button>
+                    <button className="action-btn secondary" onClick={handleCancel}>Batal</button>
+                  </>
+                )
+                : (
+                  <button className="action-btn secondary" onClick={() => setEditMode(true)}>
+                    <i className="fas fa-pen" /> Edit Profil
+                  </button>
+                )
+            )}
+            {currentUser && (
+              <button className="action-btn danger" onClick={logout}>
+                <i className="fas fa-right-from-bracket" /> Keluar
+              </button>
+            )}
+          </div>
+
+          {/* Bar status login user */}
+          {currentUser && !isAdmin && (
+            <div className="user-status-bar">
+              Login sebagai: <strong>@{currentUser.username}</strong>
+            </div>
+          )}
+
+          {/* ── FAQ ── */}
+          <FaqSection />
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  WISHLIST SCREEN
+    //  Halaman daftar konten yang disimpan user
+    // ============================================================
+
+    function WishlistScreen() {
+      const { getWishlistContent, toggleWishlist, setPopup, currentUser, isAdmin } = useApp();
+      const [sort,       setSort]       = useState('newest');
+      const [selectMode, setSelectMode] = useState(false);
+      const [selected,   setSelected]   = useState(new Set());
+
+      // Tampilkan halaman terkunci jika bukan user biasa
+      if (!currentUser || isAdmin) {
+        return (
+          <div className="screen">
+            <h1 className="screen-title">WISHLIST</h1>
+            <div className="lock-state">
+              <i className={`fas ${isAdmin ? 'fa-shield-halved' : 'fa-lock'}`} />
+              <p>{isAdmin ? 'Admin tidak memiliki wishlist' : 'Login sebagai User untuk menyimpan wishlist'}</p>
+            </div>
+          </div>
+        );
+      }
+
+      const wishlist = getWishlistContent();
+
+      // Sortir wishlist berdasarkan pilihan user
+      const sorted = useMemo(() => {
+        const arr = [...wishlist];
+        if (sort === 'newest')      arr.sort((a, b) => b.uploadedAt - a.uploadedAt);
+        else if (sort === 'oldest') arr.sort((a, b) => a.uploadedAt - b.uploadedAt);
+        else                        arr.sort((a, b) => a.name.localeCompare(b.name));
+        return arr;
+      }, [wishlist, sort]);
+
+      const sortLabel  = sort === 'newest' ? 'Terbaru' : sort === 'oldest' ? 'Terlama' : 'A–Z';
+      const sortIcon   = sort === 'alpha' ? 'fa-arrow-down-a-z' : sort === 'newest' ? 'fa-arrow-down-short-wide' : 'fa-arrow-up-short-wide';
+      const cycleSorts = () => setSort(s => s === 'newest' ? 'oldest' : s === 'oldest' ? 'alpha' : 'newest');
+
+      // Fungsi seleksi item wishlist
+      const toggleSel = id => setSelected(prev => {
+        const n = new Set(prev);
+        n.has(id) ? n.delete(id) : n.add(id);
+        return n;
+      });
+      const selectAll = () =>
+        setSelected(selected.size === sorted.length ? new Set() : new Set(sorted.map(i => i.id)));
+      const deleteSelected = () => {
+        selected.forEach(id => toggleWishlist(id));
+        setSelected(new Set());
+        setSelectMode(false);
+      };
+
+      return (
+        <div className="screen">
+          {/* Header wishlist: judul + tombol pilih */}
+          <div className="wishlist-header-row">
+            <h1 className="screen-title">WISHLIST</h1>
+            <div className="wishlist-ctrl-row">
+              <button
+                className={`ctrl-icon-btn${selectMode ? ' on' : ''}`}
+                onClick={() => { setSelectMode(p => !p); setSelected(new Set()); }}
+                title="Pilih item"
+              >
+                <i className="fas fa-pencil" />
+              </button>
+              {selectMode && selected.size > 0 && (
+                <button className="ctrl-icon-btn del" onClick={deleteSelected} title="Hapus terpilih">
+                  <i className="fas fa-trash" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Baris sortir + pilih semua */}
+          <div className="wl-sort-bar">
+            <button className="wl-sort-btn" onClick={cycleSorts}>
+              <i className={`fas ${sortIcon}`} /> {sortLabel}
+            </button>
+            {selectMode && (
+              <button className="wl-sort-btn" onClick={selectAll}>
+                <i className="fas fa-check-double" />
+                {selected.size === sorted.length ? 'Batal Semua' : 'Pilih Semua'}
+              </button>
+            )}
+          </div>
+
+          {/* Daftar item wishlist / state kosong */}
+          {sorted.length === 0
+            ? (
+              <div className="empty-state">
+                <i className="far fa-heart" />
+                <p>Wishlist kosong</p>
+              </div>
+            )
+            : (
+              <div className="wl-list">
+                {sorted.map(item => (
+                  <div
+                    key={item.id}
+                    className={`wl-item${selectMode && selected.has(item.id) ? ' sel' : ''}`}
+                    onClick={() => selectMode ? toggleSel(item.id) : setPopup(item.id)}
+                  >
+                    {/* Checkbox seleksi */}
+                    {selectMode && (
+                      <div className={`wl-checkbox${selected.has(item.id) ? ' checked' : ''}`}>
+                        {selected.has(item.id) && <i className="fas fa-check" />}
+                      </div>
+                    )}
+
+                    {/* Thumbnail item wishlist */}
+                    <div className="wl-thumb" style={{ background: item.gradient }}>
+                      {item.thumbnail && <img src={item.thumbnail} alt="" loading="lazy" decoding="async" />}
+                    </div>
+
+                    {/* Info: nama, tipe, tombol download */}
+                    <div className="wl-info">
+                      <p className="wl-name">{item.name}</p>
+                      <span className="wl-type-lbl" style={{ color: TYPE_COLORS[item.type] }}>{item.type}</span>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        className="wl-dl-btn"
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (item.url === '#') { e.preventDefault(); alert('URL demo, tidak tersedia'); }
+                        }}
+                      >
+                        <i className="fas fa-download" /> Download
+                      </a>
+                    </div>
+
+                    {/* Tombol hapus dari wishlist */}
+                    {!selectMode && (
+                      <button
+                        className="wl-trash-btn"
+                        onClick={e => { e.stopPropagation(); toggleWishlist(item.id); }}
+                        title="Hapus dari wishlist"
+                      >
+                        <i className="fas fa-trash" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          }
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  UPLOAD SCREEN (Admin Only)
+    //  Halaman upload konten baru — hanya bisa diakses Admin
+    // ============================================================
+
+    function UploadScreen() {
+      const { isAdmin, addContent, setActiveTab } = useApp();
+
+      // State form upload
+      const [form, setForm] = useState({
+        name             : '',
+        description      : '',
+        category         : '',
+        url              : '',
+        type             : 'Kategori',
+        uploaderUsername : '',
+        uploaderSocial   : { platform: 'YouTube', username: '' },
+      });
+      const [thumb,       setThumb]       = useState(null);
+      const [thumbData,   setThumbData]   = useState(null);
+      const [showTypeDD,  setShowTypeDD]  = useState(false);
+      const [showSocialDD,setShowSocialDD]= useState(false);
+      const [showCatDD,   setShowCatDD]   = useState(false);
+      const [errors,      setErrors]      = useState({});
+      const [success,     setSuccess]     = useState(false);
+      const fileRef = useRef();
+
+      // Tampilan terkunci jika bukan admin
+      if (!isAdmin) {
+        return (
+          <div className="screen">
+            <div className="lock-state">
+              <i className="fas fa-lock" />
+              <p>Hanya Admin yang bisa upload konten</p>
+            </div>
+          </div>
+        );
+      }
+
+      // Handle upload thumbnail (dengan kompresi gambar)
+      function handleThumb(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX    = 720;
+            let w = img.width, h = img.height;
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else       { w = Math.round(w * MAX / h); h = MAX; }
+            canvas.width  = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.7);
+            setThumb(compressed);
+            setThumbData(compressed);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Validasi field wajib sebelum submit
+      function validate() {
+        const errs = {};
+        if (!form.name.trim()) errs.name = 'Nama wajib diisi';
+        if (!form.url.trim())  errs.url  = 'URL wajib diisi';
+        setErrors(errs);
+        return !Object.keys(errs).length;
+      }
+
+      // Submit form upload konten baru
+      function handleSubmit() {
+        if (!validate()) return;
+        addContent({ ...form, thumbnail: thumbData });
+        setForm({
+          name             : '',
+          description      : '',
+          category         : '',
+          url              : '',
+          type             : 'Model 3D',
+          uploaderUsername : '',
+          uploaderSocial   : { platform: 'YouTube', username: '' },
+        });
+        setThumb(null);
+        setThumbData(null);
+        setSuccess(true);
+        setTimeout(() => { setSuccess(false); setActiveTab('home'); }, 1600);
+      }
+
+      return (
+        <div className="screen">
+          <h1 className="screen-title">UPLOAD</h1>
+
+          {/* Toast sukses setelah upload berhasil */}
+          {success && (
+            <div className="toast-success">
+              <i className="fas fa-circle-check" /> Konten berhasil diupload!
+            </div>
+          )}
+
+          <div className="upload-card">
+            {/* Preview thumbnail (standalone, tanpa tombol samping) */}
+            <div className="upload-preview-box" onClick={() => fileRef.current?.click()}>
+              {thumb
+                ? <img src={thumb} alt="Preview" />
+                : <><i className="fas fa-cloud-arrow-down" /><span>Picture</span></>
+              }
+            </div>
+            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleThumb} />
+
+            {/* Field Nama */}
+            <input
+              className={`upload-input${errors.name ? ' err' : ''}`}
+              placeholder="Nama"
+              value={form.name}
+              onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setErrors(p => ({ ...p, name: '' })); }}
+            />
+            {errors.name && <p className="field-err">{errors.name}</p>}
+
+            {/* Field Deskripsi */}
+            <input
+              className="upload-input"
+              placeholder="Deskripsi"
+              value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+            />
+
+            {/* Field URL Download */}
+            <input
+              className={`upload-input${errors.url ? ' err' : ''}`}
+              placeholder="URL Download"
+              value={form.url}
+              onChange={e => { setForm(f => ({ ...f, url: e.target.value })); setErrors(p => ({ ...p, url: '' })); }}
+            />
+            {errors.url && <p className="field-err">{errors.url}</p>}
+
+            {/* Baris selector Tipe & Label/Kategori */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              {/* Dropdown Tipe Konten */}
+              <div className="type-selector" style={{ flex: 1 }}>
+                <button className="type-selector-btn" onClick={() => setShowTypeDD(p => !p)}>
+                  <span style={{ color: TYPE_COLORS[form.type] }}>{form.type}</span>
+                  <i className={`fas fa-chevron-${showTypeDD ? 'up' : 'down'}`} />
+                </button>
+                {showTypeDD && (
+                  <div className="type-dropdown">
+                    {TYPES.map(t => (
+                      <button
+                        key={t}
+                        className={`type-opt${form.type === t ? ' sel' : ''}`}
+                        style={{ color: TYPE_COLORS[t] }}
+                        onClick={() => { setForm(f => ({ ...f, type: t })); setShowTypeDD(false); }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Dropdown Label/Kategori Konten */}
+              <div className="type-selector" style={{ flex: 1 }}>
+                <button className="type-selector-btn" onClick={() => setShowCatDD(p => !p)}>
+                  <span style={{ color: '#ffffff' }}>{form.category || 'Label'}</span>
+                  <i className={`fas fa-chevron-${showCatDD ? 'up' : 'down'}`} />
+                </button>
+                {showCatDD && (
+                  <div className="type-dropdown">
+                    {CATEGORIES.map(c => (
+                      <button
+                        key={c}
+                        className={`type-opt${form.category === c ? ' sel' : ''}`}
+                        style={{ color: CATEGORY_COLORS[c] || '#ffffff' }}
+                        onClick={() => { setForm(f => ({ ...f, category: c })); setShowCatDD(false); }}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tombol Upload & Batal — tepat di bawah selector Tipe */}
+            <div className="upload-side-btns" style={{ flexDirection: 'row' }}>
+              <button className="upload-side-btn confirm" style={{ flex: 1, justifyContent: 'center' }} onClick={() => fileRef.current?.click()}>
+                <i className="fas fa-upload" /> Upload
+              </button>
+              <button className="upload-side-btn cancel" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setThumb(null); setThumbData(null); }}>
+                Batal <i className="fas fa-times" />
+              </button>
+            </div>
+
+            {/* Garis pemisah "Info Uploader" */}
+            <div className="upload-section-divider">
+              <span>Info Uploader</span>
+            </div>
+
+            {/* Field Username Uploader */}
+            <input
+              className="upload-input"
+              placeholder="Username uploader (cth: zfirr)"
+              value={form.uploaderUsername}
+              onChange={e => setForm(f => ({ ...f, uploaderUsername: e.target.value }))}
+            />
+
+            {/* Baris platform sosial + username sosial uploader */}
+            <div className="uploader-social-row">
+              {/* Dropdown pilih platform sosial */}
+              <div className="social-platform-wrap">
+                <button
+                  className="social-platform-btn"
+                  onClick={() => setShowSocialDD(p => !p)}
+                  type="button"
+                >
+                  {(() => {
+                    const plat = SOCIAL_PLATFORMS.find(p => p.key === form.uploaderSocial.platform) || SOCIAL_PLATFORMS[0];
+                    return (
+                      <>
+                        <i className={plat.icon} style={{ color: plat.color }} />
+                        <span>{plat.key}</span>
+                        <i className={`fas fa-chevron-${showSocialDD ? 'up' : 'down'}`} style={{ fontSize: 10 }} />
+                      </>
+                    );
+                  })()}
+                </button>
+                {showSocialDD && (
+                  <div className="social-platform-dropdown">
+                    {SOCIAL_PLATFORMS.map(p => (
+                      <button
+                        key={p.key}
+                        className={`social-plat-opt${form.uploaderSocial.platform === p.key ? ' sel' : ''}`}
+                        onClick={() => {
+                          setForm(f => ({ ...f, uploaderSocial: { ...f.uploaderSocial, platform: p.key } }));
+                          setShowSocialDD(false);
+                        }}
+                        type="button"
+                      >
+                        <i className={p.icon} style={{ color: p.color }} />
+                        <span>{p.key}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Field username / handle sosial media uploader */}
+              <input
+                className="upload-input social-uname-input"
+                placeholder="Username / handle"
+                value={form.uploaderSocial.username}
+                onChange={e => setForm(f => ({ ...f, uploaderSocial: { ...f.uploaderSocial, username: e.target.value } }))}
+              />
+            </div>
+
+            {/* Tombol submit upload konten */}
+            <button className="upload-submit-btn" onClick={handleSubmit}>
+              <i className="fas fa-plus" /> Tambahkan Konten
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  ROOT APP
+    //  Komponen utama: routing antar layar berdasarkan activeTab
+    // ============================================================
+
+    function App() {
+      const { currentUser, activeTab, popup } = useApp();
+
+      // Tampilkan login jika belum ada user yang masuk
+      if (!currentUser) return <LoginScreen />;
+
+      // Peta tab ke komponen layar
+      const screens = {
+        home    : <HomeScreen />,
+        notif   : <NotificationsScreen />,
+        profile : <ProfileScreen />,
+        wishlist: <WishlistScreen />,
+        upload  : <UploadScreen />,
+      };
+
+      return (
+        <div className="app">
+          {/* Area konten yang bisa di-scroll */}
+          <div className="page-content">
+            {screens[activeTab] || screens.home}
+          </div>
+
+          {/* Popup detail konten (jika ada) */}
+          {popup && <ContentPopup />}
+
+          {/* Navigasi bawah */}
+          <BottomNav />
+        </div>
+      );
+    }
+
+    // ============================================================
+    //  MOUNT
+    //  Render aplikasi React ke dalam #root
+    // ============================================================
+
+    const rootEl = document.getElementById('root');
+    ReactDOM.render(
+      <AppProvider>
+        <App />
+      </AppProvider>,
+      rootEl
+    );
+  </script>
+</body>
+</html>
