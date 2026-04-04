@@ -27,6 +27,40 @@
 
 </script>
 
+  <!-- ================================================================ -->
+  <!-- FIREBASE CDN (ditambahkan untuk migrasi ke cloud database)       -->
+  <!-- ================================================================ -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script>
+    // ================================================================
+    // FIREBASE CONFIGURATION
+    // Ganti nilai-nilai di bawah dengan konfigurasi Firebase project Anda.
+    // Cara mendapatkan config:
+    //   1. Buka https://console.firebase.google.com
+    //   2. Buat project baru atau pilih project yang ada
+    //   3. Buka Project Settings > General > Your apps
+    //   4. Klik "Add app" > Web, lalu salin firebaseConfig
+    //   5. Di Firestore, buat collection "content" dan aktifkan rules
+    // ================================================================
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDNy74y_eUEZ9Q39BmW-teTiHU9ENdN6-w",
+      authDomain:        "zfcollections-9b435.firebaseapp.com",
+      projectId:         "zfcollections-9b435",
+      storageBucket:     "zfcollections-9b435.firebasestorage.app",
+      messagingSenderId: "583272556208",
+      appId:             "1:583272556208:web:57527d2903aa8bac387d75",
+    };
+
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Ekspor instance Firestore agar bisa dipakai di dalam React
+    window.__db = firebase.firestore();
+
+    console.log('[Firebase] Initialized. Firestore ready.');
+  </script>
+
   <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}:root{--bg:#070707;--surface:#111111;--surface2:#191919;--surface3:#222222;--surface4:#2a2a2a;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.13);--border3:rgba(255,255,255,0.22);--text:#eeeeee;--text-muted:#666666;--text-dim:#333333;--accent:#ffffff;--red:#ff3d3d;--green:#3dff88;--nav-h:70px;--r:13px;--r-sm:9px;--r-lg:20px;--r-xl:28px;--r-full:999px;--shadow:0 12px 40px rgba(0,0,0,0.6);--shadow-sm:0 4px 16px rgba(0,0,0,0.4);--font:'DM Sans',sans-serif;--font-display:'Bebas Neue',cursive;--c-model3d:#FF6B35;--c-animasi:#FF3D6E;--c-world:#3DFF88;--c-render:#3D9EFF;--c-unknow:#8888AA;}html,body{height:100%;overflow:hidden;}body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}#root{height:100%;overflow:hidden;}::-webkit-scrollbar{width:0;height:0;}a{color:inherit;text-decoration:none;}button{font-family:var(--font);cursor:pointer;border:none;outline:none;background:none;}input,textarea{font-family:var(--font);outline:none;border:none;}.app{height:100vh;max-width:480px;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);position:relative;-webkit-user-select:none;user-select:none;}.page-content{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + 40px);overscroll-behavior:contain;-webkit-overflow-scrolling:touch;will-change:scroll-position;transform:translateZ(0);scroll-behavior:smooth;backface-visibility:hidden;-webkit-backface-visibility:hidden;}@keyframes fadeUp{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}@keyframes slideUp{from{transform:translateY(100%);opacity:0;}to{transform:translateY(0);opacity:1;}}@keyframes slideDown{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}@keyframes overlayIn{from{opacity:0;}to{opacity:1;}}@keyframes spin{to{transform:rotate(360deg);}}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}.screen{animation:fadeUp 0.12s ease-out forwards;}.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:32px 20px 40px;gap:24px;background:var(--bg);animation:none;}.login-brand{display:flex;flex-direction:column;align-items:center;gap:8px;}.login-logo-circle{width:80px;height:80px;background:linear-gradient(135deg,#FF6B35,#FF3D6E);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:32px auto 40px;box-shadow:0 10px 25px rgba(255,107,53,0.4);border:3px solid rgba(255,255,255,0.1);}.login-logo-circle i{font-size:35px;color:white;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));}.login-brand-name{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);}.login-card{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:0;-webkit-user-select:none;user-select:none;}.login-card-title{font-size:17px;font-weight:600;text-align:center;margin-bottom:20px;color:var(--text);}.login-section{margin-bottom:14px;}.login-section-label{font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;padding-left:2px;}.login-input-row{display:flex;gap:8px;align-items:center;}.login-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-full);padding:11px 16px;font-size:14px;color:var(--text);transition:border-color 0.2s;}.login-input:focus{border-color:var(--border3);}.login-input::placeholder{color:var(--text-muted);}.login-btn{background:white;color:black;border-radius:var(--r-full);padding:11px 18px;font-size:13px;font-weight:700;white-space:nowrap;transition:opacity 0.2s,transform 0.1s;flex-shrink:0;}.login-btn:active{transform:scale(0.95);}.login-btn:disabled{opacity:0.4;}.login-error{font-size:11px;color:var(--red);margin-top:5px;padding-left:6px;display:flex;align-items:center;gap:4px;}.login-hr{border:none;border-top:1px solid var(--border);margin:8px 0 14px;}.login-note{display:flex;align-items:flex-start;gap:8px;padding:12px;background:var(--surface2);border-radius:var(--r);margin-top:4px;}.login-note i{color:var(--text-muted);margin-top:1px;font-size:13px;flex-shrink:0;}.login-note span{font-size:12px;color:var(--text-muted);line-height:1.5;}.bottom-nav{height:76px;flex-shrink:0;padding:8px 12px 14px;background:transparent;position:relative;z-index:50;margin-bottom:50px;}.nav-inner{height:100%;background:#ffffff;border-radius:40px;display:flex;align-items:center;justify-content:space-around;padding:0 8px;box-shadow:0 4px 24px rgba(0,0,0,0.18),0 1px 4px rgba(0,0,0,0.10);transform:translateZ(0);}.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1;height:100%;border-radius:50%;color:#999999;font-size:20px;position:relative;transition:color 0.2s ease,transform 0.15s ease;}.nav-btn:active{transform:scale(0.82);}.nav-btn i{font-size:20px;display:block;}.nav-btn-label{font-size:10px;font-weight:600;line-height:1;letter-spacing:0.2px;}.nav-btn.active{color:#1a1a1a;}.nav-btn.nav-special{flex:0 0 52px;width:52px;height:52px;border-radius:50%;background:#1a1a1a;color:#ffffff;font-size:22px;box-shadow:0 4px 16px rgba(0,0,0,0.35);flex-direction:column;gap:0;}.nav-btn.nav-special i{font-size:22px;}.nav-btn.nav-special .nav-btn-label{display:none;}.nav-btn.nav-special.active{background:#333;}.nav-btn.nav-disabled{opacity:0.3;cursor:not-allowed;}.nav-badge{position:absolute;top:2px;right:8px;background:var(--red);color:white;font-size:9px;font-weight:800;min-width:15px;height:15px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;}.screen-title{font-family:var(--font-display);font-size:32px;letter-spacing:1.5px;color:var(--text);padding:20px 16px 4px;}.home-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;position:sticky;top:0;background:var(--bg);z-index:20;}.brand-row{display:flex;align-items:center;gap:9px;}.brand-logo-box{background:transparent;border:none;font-size:25px;color:#FF6B35;text-shadow:0 0 10px rgba(255,107,53,0.5);width:auto;height:auto;display:flex;align-items:center;justify-content:center;margin-right:10px;}.brand-title{font-size:13px;font-weight:700;letter-spacing:0.2px;line-height:1.2;}.icon-btn{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;color:var(--text-muted);font-size:13px;display:flex;align-items:center;justify-content:center;transition:color 0.2s,transform 0.3s;}.icon-btn:active{transform:rotate(180deg);color:white;}.search-wrap{padding:0 16px 10px;}.search-bar{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-full);padding:10px 14px;transition:border-color 0.3s;}.search-bar:focus-within{border-color:var(--border3);}.search-bar > i{color:var(--text-muted);font-size:13px;flex-shrink:0;}.search-bar input{flex:1;background:transparent;color:var(--text);font-size:14px;font-weight:500;}.search-bar input::placeholder{color:var(--text-muted);}.search-clear{color:var(--text-muted);font-size:12px;padding:0;}.filter-row{display:flex;gap:6px;padding:0 16px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;}.filter-chip{flex-shrink:0;padding:5px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-full);font-size:12px;font-weight:600;color:var(--text-muted);transition:all 0.18s;white-space:nowrap;}.filter-chip.active{background:transparent;color:white;border-color:white;}.content-grid{display:flex;flex-direction:column;gap:0;padding:0 12px 8px;}.c-card{background:var(--bg);cursor:pointer;position:relative;display:flex;align-items:center;gap:14px;padding:12px 4px;border-bottom:1px solid var(--border);touch-action:manipulation;-webkit-tap-highlight-color:transparent;transform:translateZ(0);transition:background 0.15s;}.c-card:active{background:var(--surface2);}.c-card-thumb{width:80px;height:80px;flex-shrink:0;border-radius:14px;overflow:hidden;position:relative;background:#1a1a1a;}.c-card-thumb img{width:100%;height:100%;object-fit:cover;image-rendering:auto;}.c-card-thumb img,.popup-thumb img,.upload-preview-box img{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;}.c-card-label{position:absolute;bottom:5px;left:5px;background:rgba(0,0,0,0.82);border-radius:20px;padding:2px 7px;display:flex;align-items:center;gap:3px;font-size:10px;font-weight:700;color:#FFD700;}.c-card-rating i{font-size:9px;}.c-card-share{position:absolute;top:5px;right:5px;width:24px;height:24px;background:rgba(255,255,255,0.92);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#333;}.c-card-body{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:2px;}.c-card-category{font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:0.2px;margin-bottom:1px;display:flex;align-items:center;gap:5px;}.c-card-name{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}.c-card-sub{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.c-card-bottom{display:flex;align-items:center;gap:8px;margin-top:6px;}.c-card-badge{background:#FF6B35;color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;transition:transform 0.15s ease,opacity 0.15s ease;}.c-card-badge:active{transform:scale(0.88);opacity:0.75;}.c-card-dl-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border3);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:12px;background:transparent;transition:border-color 0.2s,color 0.2s,background 0.15s;}.c-card-dl-btn:active{background:var(--surface3);border-color:rgba(255,255,255,0.5);color:white;}.c-card-dl-btn:focus{border-color:rgba(255,255,255,0.5);color:white;outline:none;}.c-card-type{display:none;}.card-three-dot{position:absolute;top:14px;right:0;width:28px;height:28px;background:var(--surface3);border-radius:50%;color:var(--text-muted);font-size:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid transparent;transition:border-color 0.2s,color 0.2s;z-index:10;}.card-three-dot:active{border-color:rgba(255,255,255,0.5);color:white;transform:scale(0.85);transition:transform 0.15s ease,border-color 0.2s,color 0.2s;}.card-three-dot:focus{border-color:rgba(255,255,255,0.5);color:white;outline:none;}.card-admin-menu{position:absolute;bottom:38px;right:8px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;z-index:10;min-width:108px;box-shadow:var(--shadow);animation:fadeUp 0.15s ease;}.card-admin-menu button{display:flex;align-items:center;gap:7px;width:100%;padding:9px 12px;color:var(--text);font-size:12px;font-weight:600;transition:background 0.15s;}.card-admin-menu button:last-child{color:var(--red);}.card-admin-menu button:active{background:var(--surface4);}.c-card-info{display:none;}.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:100;display:flex;align-items:flex-end;backdrop-filter:blur(5px);animation:overlayIn 0.2s ease;max-width:480px;margin:0 auto;}.popup-sheet{width:100%;background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;border:1px solid var(--border2);border-bottom:none;overflow:hidden;animation:slideUp 0.45s cubic-bezier(0.16,1,0.3,1);max-height:92vh;overflow-y:auto;}.popup-thumb{width:100%;aspect-ratio:4/3;position:relative;overflow:hidden;}.popup-thumb img{width:100%;height:100%;object-fit:cover;}.popup-love-btn{position:absolute;top:12px;left:12px;width:38px;height:38px;background:rgba(0,0,0,0.55);border-radius:50%;color:white;font-size:17px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);transition:all 0.2s;}.popup-love-btn.loved{color:var(--red);background:rgba(255,61,61,0.18);}.popup-close-btn{position:absolute;top:12px;right:12px;width:34px;height:34px;background:rgba(0,0,0,0.55);border-radius:50%;color:white;font-size:14px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);}.popup-body{padding:16px 18px 20px;}.popup-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}.popup-name{font-size:20px;font-weight:800;line-height:1.2;flex:1;}.popup-type{font-size:11px;font-weight:700;letter-spacing:0.3px;margin-top:4px;}.popup-desc{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:14px;}.popup-uploader-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}.popup-uploader{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-muted);}.popup-uploader i{font-size:20px;color:var(--text-muted);}.popup-yt-btn{width:38px;height:38px;background:var(--surface3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform 0.15s,opacity 0.15s;}.popup-yt-btn:active{transform:scale(0.9);}.popup-action-row{display:flex;gap:10px;align-items:center;}.btn-dl{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:white;color:black;border-radius:var(--r-full);padding:13px;font-size:15px;font-weight:800;transition:opacity 0.2s,transform 0.1s;}.btn-dl:active{transform:scale(0.97);}.share-wrap{position:relative;}.btn-share{width:46px;height:46px;background:var(--surface2);border:1px solid var(--border2);border-radius:50%;color:var(--text);font-size:15px;display:flex;align-items:center;justify-content:center;}.share-dropdown{position:absolute;bottom:54px;right:0;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;min-width:160px;box-shadow:var(--shadow);animation:fadeUp 0.15s ease;z-index:20;}.share-dropdown button{display:flex;align-items:center;gap:10px;width:100%;padding:11px 15px;color:var(--text);font-size:13px;font-weight:600;text-align:left;transition:background 0.15s;}.share-dropdown button:active{background:var(--surface4);}.share-dropdown button i{width:16px;text-align:center;}.notif-list{display:flex;flex-direction:column;gap:1px;background:var(--border);margin-top:4px;}.notif-item{display:flex;align-items:center;gap:11px;background:var(--bg);padding:11px 16px;cursor:pointer;position:relative;transition:background 0.15s;}.notif-item:active{background:var(--surface2);}.badge-new{position:absolute;top:8px;left:4px;background:var(--red);color:white;font-size:8px;font-weight:900;padding:2px 5px;border-radius:4px;letter-spacing:0.5px;z-index:2;}.notif-thumb{width:58px;height:58px;border-radius:var(--r-sm);overflow:hidden;flex-shrink:0;}.notif-thumb img{width:100%;height:100%;object-fit:cover;}.notif-info{flex:1;overflow:hidden;}.notif-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}.notif-type{font-size:11px;font-weight:600;}.notif-time{font-size:11px;color:var(--text-muted);flex-shrink:0;text-align:right;}.profile-card{margin:8px 16px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-xl);padding:22px 20px;display:flex;flex-direction:column;align-items:center;}.profile-role-badge{background:var(--surface3);color:var(--text-muted);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:var(--r-full);margin-bottom:14px;}.profile-avatar{width:84px;height:84px;border-radius:50%;background:var(--surface2);border:2px solid var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:56px;color:var(--text-muted);margin-bottom:14px;position:relative;cursor:pointer;}.profile-avatar img{width:100%;height:100%;object-fit:cover;}.avatar-cam-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-size:22px;color:white;}.profile-name-text{font-size:20px;font-weight:800;margin-bottom:4px;text-align:center;}.profile-bio-text{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:16px;line-height:1.55;}.profile-divider{width:100%;border-top:1px solid var(--border);margin-bottom:16px;}.social-row{display:flex;gap:10px;}.social-icon-btn{width:44px;height:44px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);transition:background 0.2s,transform 0.15s;}.social-icon-btn:active{transform:scale(0.9);}.edit-field{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 13px;font-size:13px;color:var(--text);transition:border-color 0.2s;margin-top:6px;}.edit-field:focus{border-color:var(--border3);}.edit-field::placeholder{color:var(--text-muted);}.edit-section-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-top:16px;margin-bottom:4px;width:100%;}.profile-actions-wrap{padding:0 16px 20px;display:flex;flex-direction:column;gap:8px;}.action-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:var(--r-full);font-size:14px;font-weight:700;transition:opacity 0.2s,transform 0.1s;}.action-btn:active{transform:scale(0.98);}.action-btn.primary{background:white;color:black;}.action-btn.secondary{background:var(--surface2);border:1px solid var(--border2);color:var(--text);}.action-btn.danger{background:rgba(255,61,61,0.1);border:1px solid rgba(255,61,61,0.25);color:var(--red);}.user-status-bar{margin:0 16px 16px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--text-muted);}.user-status-bar strong{color:var(--text);}.wishlist-header-row{display:flex;align-items:center;justify-content:space-between;padding-right:16px;}.wishlist-ctrl-row{display:flex;gap:6px;}.ctrl-icon-btn{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;color:var(--text-muted);font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}.ctrl-icon-btn.on{background:white;color:black;border-color:white;}.ctrl-icon-btn.del{background:rgba(255,61,61,0.1);color:var(--red);border-color:rgba(255,61,61,0.3);}.wl-sort-bar{display:flex;gap:7px;padding:4px 16px 10px;}.wl-sort-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--text-muted);}.wl-list{display:flex;flex-direction:column;gap:1px;background:var(--border);}.wl-item{display:flex;align-items:center;gap:11px;background:var(--bg);padding:10px 16px;cursor:pointer;transition:background 0.15s;}.wl-item.sel{background:var(--surface2);}.wl-checkbox{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;transition:all 0.15s;}.wl-checkbox.checked{background:white;border-color:white;color:black;}.wl-thumb{width:62px;height:62px;border-radius:var(--r-sm);overflow:hidden;flex-shrink:0;}.wl-thumb img{width:100%;height:100%;object-fit:cover;}.wl-info{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:2px;}.wl-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.wl-type-lbl{font-size:11px;font-weight:600;}.wl-dl-btn{display:inline-flex;align-items:center;gap:5px;margin-top:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-full);padding:4px 11px;font-size:11px;font-weight:700;color:var(--text);width:fit-content;}.wl-trash-btn{width:30px;height:30px;color:var(--text-muted);font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0;transition:color 0.2s;}.wl-trash-btn:active{color:var(--red);}.upload-card{margin:4px 16px 24px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-xl);padding:18px;display:flex;flex-direction:column;gap:9px;}.upload-thumb-row{display:flex;gap:10px;align-items:stretch;}.upload-preview-box{flex:1;background:var(--surface2);border:1.5px dashed var(--border2);border-radius:var(--r);min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;overflow:hidden;transition:border-color 0.2s;}.upload-preview-box:active{border-color:var(--border3);}.upload-preview-box i{font-size:26px;color:var(--text-muted);}.upload-preview-box span{font-size:11px;color:var(--text-muted);font-weight:600;}.upload-preview-box img{width:100%;height:100%;object-fit:cover;}.upload-side-btns{display:flex;flex-direction:column;gap:7px;}.upload-side-btn{display:flex;align-items:center;gap:5px;padding:9px 13px;border-radius:var(--r-full);font-size:12px;font-weight:700;white-space:nowrap;transition:all 0.15s;}.upload-side-btn.confirm{background:var(--surface3);color:white;border:1px solid var(--border2);}.upload-side-btn.cancel{background:transparent;color:var(--text-muted);border:1px solid var(--border);}.upload-input{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-full);padding:11px 16px;font-size:13px;color:var(--text);width:100%;transition:border-color 0.2s;}.upload-input:focus{border-color:var(--border3);}.upload-input::placeholder{color:var(--text-muted);}.upload-input.err{border-color:rgba(255,61,61,0.5);}.field-err{font-size:11px;color:var(--red);padding-left:8px;margin-top:-4px;}.type-selector{position:relative;}.type-selector-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-full);font-size:13px;font-weight:700;color:var(--text);transition:border-color 0.2s;}.type-dropdown{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;z-index:15;box-shadow:var(--shadow);animation:fadeUp 0.15s ease;}.type-opt{display:block;width:100%;padding:11px 16px;background:transparent;font-size:13px;font-weight:700;text-align:left;transition:background 0.12s;}.type-opt:active{background:var(--surface4);}.type-opt.sel{background:var(--surface4);}.upload-submit-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:white;color:black;border-radius:var(--r-full);padding:13px;font-size:14px;font-weight:800;margin-top:4px;transition:opacity 0.2s,transform 0.1s;}.upload-submit-btn:active{transform:scale(0.98);}.upload-section-divider{display:flex;align-items:center;gap:10px;margin:4px 0 2px;}.upload-section-divider::before,.upload-section-divider::after{content:'';flex:1;height:1px;background:var(--border2);}.upload-section-divider span{font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;}.uploader-social-row{display:flex;gap:8px;align-items:stretch;}.social-uname-input{flex:1;border-radius:var(--r-full) !important;}.social-platform-wrap{position:relative;}.social-platform-btn{display:flex;align-items:center;gap:6px;padding:11px 13px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-full);font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;transition:border-color 0.2s;height:100%;}.social-platform-btn:active{border-color:var(--border3);}.social-platform-btn i:first-child{font-size:15px;}.social-platform-dropdown{position:absolute;bottom:calc(100% + 6px);left:0;min-width:150px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;z-index:20;box-shadow:var(--shadow);animation:fadeUp 0.15s ease;}.social-plat-opt{display:flex;align-items:center;gap:9px;width:100%;padding:10px 14px;background:transparent;font-size:13px;font-weight:600;color:var(--text);text-align:left;transition:background 0.12s;}.social-plat-opt i{font-size:15px;width:16px;text-align:center;}.social-plat-opt:active{background:var(--surface4);}.social-plat-opt.sel{background:var(--surface4);}.toast-success{margin:0 16px 10px;background:rgba(61,255,136,0.08);border:1px solid rgba(61,255,136,0.25);border-radius:var(--r);padding:11px 14px;font-size:13px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:8px;animation:fadeUp 0.2s ease;}.modal-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;max-width:480px;margin:0 auto;animation:fadeUp 0.22s cubic-bezier(0.16,1,0.3,1);}.modal-header{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:10;}.modal-back-btn{width:36px;height:36px;background:var(--surface2);border:1px solid var(--border);border-radius:50%;color:var(--text);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s,transform 0.15s;}.modal-back-btn:active{background:var(--surface3);transform:scale(0.9);}.modal-header-title{font-family:var(--font-display);font-size:22px;letter-spacing:1.2px;color:var(--text);flex:1;}.modal-card{flex:1;overflow-y:auto;padding:20px 16px 24px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;}.modal-field-label{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px;padding-left:4px;}.modal-field-group{display:flex;flex-direction:column;gap:4px;}.modal-btn-row{display:flex;gap:8px;}.modal-btn-row button{flex:1;}.modal-inline-btn-row{display:flex;gap:8px;margin-top:2px;}.modal-inline-btn-row button{flex:1;}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:64px 24px;color:var(--text-muted);text-align:center;}.empty-state i{font-size:36px;opacity:0.35;}.empty-state p{font-size:14px;font-weight:500;}.lock-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:72px 24px;text-align:center;}.lock-state i{font-size:42px;color:var(--text-dim);}.lock-state p{font-size:14px;color:var(--text-muted);font-weight:500;}.spinner{animation:spin 0.8s linear infinite;}.thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}.thumb-placeholder i{font-size:28px;color:rgba(255,255,255,0.15);}
 </style>
@@ -126,12 +160,39 @@ function randGradient() {
 const AppCtx = createContext();
 function AppProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(() => Storage.get('zf_user'));
-    const [content, setContent] = useState(() => {
-        const s = Storage.get('zf_content');
-        return (s && s.length) ? s : DEMO_CONTENT;
-    });
+
+    // ================================================================
+    // [DIUBAH] State konten sekarang diisi dari Firestore, bukan localStorage.
+    //   - Nilai awal [] — akan segera diisi oleh listener real-time di bawah.
+    //   - Jika Firestore kosong, fallback ke DEMO_CONTENT akan digunakan.
+    //   - "contentLoading" dipakai agar UI tidak blank saat data belum tiba.
+    // ================================================================
+    const [content, setContent] = useState([]);
+    const [contentLoading, setContentLoading] = useState(true);
+
+    // users: state lokal untuk cek login cepat, sync dua arah dengan Firestore
     const [users, setUsers] = useState(() => Storage.get('zf_users', []));
-    const [adminProfile, setAdminP] = useState(() => Storage.get('zf_admin_profile', {
+
+    // ================================================================
+    // [BARU] Real-time listener untuk koleksi "users" di Firestore.
+    //   Setiap user yang login/daftar disimpan di Firestore agar
+    //   wishlist & data tersinkronisasi lintas perangkat.
+    // ================================================================
+    useEffect(() => {
+        const db = window.__db;
+        if (!db) return;
+        const unsub = db.collection('users').onSnapshot(
+            snap => {
+                const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                setUsers(list);
+                Storage.set('zf_users', list);
+            },
+            err => console.error('[Firebase] users listener error:', err.message)
+        );
+        return () => unsub();
+    }, []);
+
+    const DEFAULT_PROFILE = {
         name: 'ZFirr',
         bio: 'Kunjungi media sosial saya lainnya',
         photo: 'https://ibb.co.com/QjCD2sTj',
@@ -139,17 +200,123 @@ function AppProvider({ children }) {
         youtube: 'https://youtube.com/@zfrmnx',
         instagram: 'https://instagram.com/zfirmandani_mc',
         saweria: 'https://saweria.co/frmnzx',
-    }));
+    };
+    const [adminProfile, setAdminP] = useState(() => Storage.get('zf_admin_profile', DEFAULT_PROFILE));
     const [readIds, setReadIds] = useState(() => new Set(Storage.get('zf_read', [])));
     const [activeTab, setActiveTab] = useState('home');
     const [popup, setPopup] = useState(null);
     const isAdmin = (currentUser === null || currentUser === void 0 ? void 0 : currentUser.role) === 'admin';
     useEffect(() => { Storage.set('zf_user', currentUser); }, [currentUser]);
-    useEffect(() => { Storage.set('zf_content', content); }, [content]);
-    useEffect(() => { Storage.set('zf_users', users); }, [users]);
+
+    // ================================================================
+    // Real-time listener untuk koleksi "content" di Firestore
+    // ================================================================
+    useEffect(() => {
+        const db = window.__db;
+        if (!db) {
+            console.warn('[Firebase] window.__db tidak tersedia. Menggunakan DEMO_CONTENT.');
+            setContent(DEMO_CONTENT);
+            setContentLoading(false);
+            return;
+        }
+
+        console.log('[Firebase] Mendaftarkan real-time listener untuk koleksi "content"...');
+
+        const unsubscribe = db
+            .collection('content')
+            .orderBy('uploadedAt', 'desc')
+            .onSnapshot(
+                (snapshot) => {
+                    if (snapshot.empty) {
+                        console.log('[Firebase] Koleksi kosong, menggunakan DEMO_CONTENT.');
+                        setContent(DEMO_CONTENT);
+                    } else {
+                        const items = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        }));
+                        console.log(`[Firebase] Data diterima: ${items.length} item.`);
+                        setContent(items);
+                    }
+                    setContentLoading(false);
+                },
+                (error) => {
+                    console.error('[Firebase] onSnapshot error:', error.message);
+                    setContent(DEMO_CONTENT);
+                    setContentLoading(false);
+                }
+            );
+
+        return () => {
+            console.log('[Firebase] Unsubscribe content listener.');
+            unsubscribe();
+        };
+    }, []);
+
+    // ================================================================
+    // [BARU] Real-time listener untuk dokumen profil admin di Firestore.
+    //   Koleksi: "profile", dokumen ID: "admin"
+    //
+    //   Cara kerja:
+    //   1. Saat mount, daftarkan listener onSnapshot ke doc "profile/admin".
+    //   2. Jika dokumen ada, isi adminProfile dengan data dari Firestore.
+    //   3. Jika dokumen belum ada (pertama kali), buat dokumen dengan
+    //      DEFAULT_PROFILE sebagai nilai awal.
+    //   4. Setiap perubahan (dari perangkat manapun) akan otomatis sync.
+    //   5. Fallback ke localStorage jika Firestore tidak tersedia.
+    // ================================================================
+    useEffect(() => {
+        const db = window.__db;
+        if (!db) {
+            console.warn('[Firebase] Tidak ada db, profil pakai localStorage.');
+            return;
+        }
+
+        console.log('[Firebase] Mendaftarkan real-time listener untuk doc "profile/admin"...');
+
+        const docRef = db.collection('profile').doc('admin');
+
+        const unsubscribe = docRef.onSnapshot(
+            async (docSnap) => {
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    console.log('[Firebase] Profil admin diterima dari Firestore.');
+                    setAdminP(data);
+                    Storage.set('zf_admin_profile', data); // cache lokal
+                } else {
+                    // Dokumen belum ada — buat dengan DEFAULT_PROFILE
+                    console.log('[Firebase] Dokumen profil belum ada, membuat dengan nilai default...');
+                    try {
+                        await docRef.set(DEFAULT_PROFILE);
+                    } catch (err) {
+                        console.error('[Firebase] Gagal membuat dokumen profil default:', err.message);
+                    }
+                }
+            },
+            (error) => {
+                console.error('[Firebase] onSnapshot profil error:', error.message);
+                // Tetap pakai adminProfile dari localStorage (state awal)
+            }
+        );
+
+        return () => {
+            console.log('[Firebase] Unsubscribe profile listener.');
+            unsubscribe();
+        };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // users sync ke localStorage dilakukan di dalam listener onSnapshot di atas
+    // adminProfile sync ke localStorage sudah dilakukan di dalam listener onSnapshot
     useEffect(() => { Storage.set('zf_admin_profile', adminProfile); }, [adminProfile]);
     useEffect(() => { Storage.set('zf_read', [...readIds]); }, [readIds]);
-    function login(role, identifier, password) {
+    // ================================================================
+    // [DIUBAH] login — sekarang baca & tulis ke Firestore.
+    //   Koleksi: "users", doc ID = username
+    //   Daftar baru: db.collection('users').doc(uname).set({...})
+    //   Login existing: db.collection('users').doc(uname).get() lalu cek password
+    //   Karena async, return value berupa Promise — LoginScreen harus handle ini.
+    // ================================================================
+    async function login(role, identifier, password) {
         if (role === 'admin') {
             if (identifier.trim() !== ADMIN_EMAIL)
                 return 'Email admin tidak valid';
@@ -158,26 +325,51 @@ function AppProvider({ children }) {
         }
         const uname = identifier.trim();
         const pwd = (password || '').trim();
-        if (!uname)
-            return 'Username tidak boleh kosong';
-        if (uname.includes(' '))
-            return 'Username tidak boleh ada spasi';
-        if (!USERNAME_REGEX.test(uname))
-            return 'Hanya huruf kecil, angka, & simbol: ^ _ * # $';
-        if (!pwd)
-            return 'Password tidak boleh kosong';
-        if (pwd.length < 4)
-            return 'Password minimal 4 karakter';
-        const existing = users.find(u => u.username === uname);
-        if (existing) {
-            if (existing.password !== pwd)
-                return 'Password salah';
+        if (!uname) return 'Username tidak boleh kosong';
+        if (uname.includes(' ')) return 'Username tidak boleh ada spasi';
+        if (!USERNAME_REGEX.test(uname)) return 'Hanya huruf kecil, angka, & simbol: ^ _ * # $';
+        if (!pwd) return 'Password tidak boleh kosong';
+        if (pwd.length < 4) return 'Password minimal 4 karakter';
+
+        const db = window.__db;
+        if (!db) {
+            // Fallback localStorage
+            const existing = users.find(u => u.username === uname);
+            if (existing) {
+                if (existing.password !== pwd) return 'Password salah';
+            } else {
+                setUsers(prev => [...prev, { username: uname, password: pwd, createdAt: Date.now(), wishlist: [], history: [] }]);
+            }
+            setCurrentUser({ role: 'user', username: uname });
+            return null;
         }
-        else {
-            setUsers(prev => [...prev, { username: uname, password: pwd, createdAt: Date.now(), wishlist: [], history: [] }]);
+
+        try {
+            const docRef = db.collection('users').doc(uname);
+            const snap = await docRef.get();
+            if (snap.exists) {
+                const data = snap.data();
+                if (data.password !== pwd) return 'Password salah';
+            } else {
+                // Daftar user baru ke Firestore
+                await docRef.set({
+                    username: uname,
+                    password: pwd,
+                    createdAt: Date.now(),
+                    wishlist: [],
+                    history: [],
+                });
+            }
+            setCurrentUser({ role: 'user', username: uname });
+            return null;
+        } catch (err) {
+            console.error('[Firebase] Login error:', err.message);
+            // Fallback cek lokal
+            const existing = users.find(u => u.username === uname);
+            if (existing && existing.password !== pwd) return 'Password salah';
+            setCurrentUser({ role: 'user', username: uname });
+            return null;
         }
-        setCurrentUser({ role: 'user', username: uname });
-        return null;
     }
     function logout() {
         setCurrentUser(null);
@@ -190,19 +382,37 @@ function AppProvider({ children }) {
             return false;
         return (getUserData(currentUser.username).wishlist || []).includes(id);
     }, [currentUser, isAdmin, getUserData]);
-    function toggleWishlist(id) {
-        if (!currentUser || isAdmin)
-            return;
+
+    // ================================================================
+    // [DIUBAH] toggleWishlist — sekarang update Firestore.
+    //   doc: users/{username}  field: wishlist (array)
+    // ================================================================
+    async function toggleWishlist(id) {
+        if (!currentUser || isAdmin) return;
         const uname = currentUser.username;
+        const userData = getUserData(uname);
+        const wl = userData.wishlist || [];
+        const newWl = wl.includes(id) ? wl.filter(i => i !== id) : [...wl, id];
+
+        // Update lokal dulu biar responsif
         setUsers(prev => {
             const idx = prev.findIndex(u => u.username === uname);
-            const base = idx >= 0 ? prev[idx] : { username: uname, createdAt: Date.now(), history: [] };
-            const wl = base.wishlist || [];
-            const updated = Object.assign(Object.assign({}, base), { wishlist: wl.includes(id) ? wl.filter(i => i !== id) : [...wl, id] });
-            if (idx >= 0)
-                return prev.map((u, i) => i === idx ? updated : u);
+            const updated = { ...(idx >= 0 ? prev[idx] : { username: uname, createdAt: Date.now(), history: [] }), wishlist: newWl };
+            if (idx >= 0) return prev.map((u, i) => i === idx ? updated : u);
             return [...prev, updated];
         });
+
+        const db = window.__db;
+        if (!db) return;
+        try {
+            await db.collection('users').doc(uname).update({ wishlist: newWl });
+        } catch (err) {
+            console.error('[Firebase] toggleWishlist error:', err.message);
+            // Jika doc belum ada, set semuanya
+            try {
+                await db.collection('users').doc(uname).set({ username: uname, wishlist: newWl, createdAt: Date.now(), history: [] }, { merge: true });
+            } catch (e) { console.error('[Firebase] toggleWishlist set error:', e.message); }
+        }
     }
     function getWishlistContent() {
         if (!currentUser || isAdmin)
@@ -211,19 +421,134 @@ function AppProvider({ children }) {
             .map(id => content.find(c => c.id === id))
             .filter(Boolean);
     }
-    function addContent(item) {
-        const newItem = Object.assign(Object.assign({}, item), { id: Date.now().toString(), uploadedAt: Date.now(), gradient: randGradient() });
-        setContent(prev => [newItem, ...prev]);
+    // ================================================================
+    // [DIUBAH] addContent — sekarang menulis ke Firestore.
+    //   Sebelumnya: setContent(prev => [newItem, ...prev])
+    //   Sesudah   : db.collection('content').doc(id).set(newItem)
+    //
+    //   UI akan otomatis terupdate via listener onSnapshot di atas,
+    //   sehingga tidak perlu memanggil setContent secara langsung.
+    //   Semua perangkat yang membuka app akan ikut terupdate.
+    // ================================================================
+    async function addContent(item) {
+        const id = Date.now().toString();
+        const newItem = {
+            ...item,
+            id,
+            uploadedAt: Date.now(),
+            gradient: randGradient(),
+        };
+
+        const db = window.__db;
+        if (!db) {
+            // Fallback: jika Firebase tidak dikonfigurasi, simpan lokal saja
+            console.warn('[Firebase] Tidak ada db, menyimpan lokal.');
+            setContent(prev => [newItem, ...prev]);
+            return;
+        }
+
+        try {
+            // Gunakan id sebagai document ID agar mudah di-query / dihapus
+            await db.collection('content').doc(id).set(newItem);
+            console.log('[Firebase] Konten berhasil ditambahkan ke Firestore:', id);
+            // Tidak perlu setContent — listener onSnapshot akan otomatis update UI
+        } catch (err) {
+            console.error('[Firebase] Gagal menambahkan konten:', err.message);
+            // Fallback lokal agar UX tidak broken
+            setContent(prev => [newItem, ...prev]);
+        }
     }
-    function deleteContent(id) {
-        setContent(prev => prev.filter(c => c.id !== id));
-        setUsers(prev => prev.map(u => (Object.assign(Object.assign({}, u), { wishlist: (u.wishlist || []).filter(wid => wid !== id) }))));
+    // ================================================================
+    // [DIUBAH] deleteContent — sekarang menghapus dokumen dari Firestore.
+    //   Sebelumnya: setContent(prev => prev.filter(...))
+    //   Sesudah   : db.collection('content').doc(id).delete()
+    //
+    //   UI akan otomatis terupdate via listener onSnapshot.
+    // ================================================================
+    async function deleteContent(id) {
+        // Hapus dari wishlist user di Firestore
+        const db = window.__db;
+        if (db) {
+            try {
+                // Update semua user yang punya item ini di wishlist
+                users.filter(u => (u.wishlist || []).includes(id)).forEach(async u => {
+                    const newWl = (u.wishlist || []).filter(wid => wid !== id);
+                    try { await db.collection('users').doc(u.username).update({ wishlist: newWl }); } catch (_) {}
+                });
+            } catch (_) {}
+        }
+        // Update lokal juga
+        setUsers(prev => prev.map(u => ({
+            ...u,
+            wishlist: (u.wishlist || []).filter(wid => wid !== id),
+        })));
+
+        if (!db) {
+            console.warn('[Firebase] Tidak ada db, menghapus lokal.');
+            setContent(prev => prev.filter(c => c.id !== id));
+            return;
+        }
+
+        try {
+            await db.collection('content').doc(id).delete();
+            console.log('[Firebase] Konten dihapus dari Firestore:', id);
+        } catch (err) {
+            console.error('[Firebase] Gagal menghapus konten:', err.message);
+            setContent(prev => prev.filter(c => c.id !== id));
+        }
     }
-    function updateContent(id, updates) {
-        setContent(prev => prev.map(c => c.id === id ? Object.assign(Object.assign({}, c), updates) : c));
+    // ================================================================
+    // [DIUBAH] updateContent — sekarang mengupdate dokumen di Firestore.
+    //   Sebelumnya: setContent(prev => prev.map(...))
+    //   Sesudah   : db.collection('content').doc(id).update(updates)
+    //
+    //   UI akan otomatis terupdate via listener onSnapshot.
+    // ================================================================
+    async function updateContent(id, updates) {
+        const db = window.__db;
+        if (!db) {
+            console.warn('[Firebase] Tidak ada db, mengupdate lokal.');
+            setContent(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+            return;
+        }
+
+        try {
+            await db.collection('content').doc(id).update(updates);
+            console.log('[Firebase] Konten diupdate di Firestore:', id);
+            // Tidak perlu setContent — listener onSnapshot akan otomatis update UI
+        } catch (err) {
+            console.error('[Firebase] Gagal mengupdate konten:', err.message);
+            // Fallback lokal
+            setContent(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+        }
     }
-    function updateAdminProfile(updates) {
-        setAdminP(prev => (Object.assign(Object.assign({}, prev), updates)));
+    // ================================================================
+    // [DIUBAH] updateAdminProfile — sekarang menyimpan ke Firestore.
+    //   Sebelumnya: setAdminP(prev => ({...prev, ...updates}))
+    //   Sesudah   : db.collection('profile').doc('admin').set({...})
+    //
+    //   UI akan otomatis terupdate via listener onSnapshot di atas.
+    //   Semua perangkat yang membuka app akan ikut terupdate.
+    // ================================================================
+    async function updateAdminProfile(updates) {
+        const newProfile = { ...adminProfile, ...updates };
+
+        const db = window.__db;
+        if (!db) {
+            console.warn('[Firebase] Tidak ada db, menyimpan profil lokal.');
+            setAdminP(newProfile);
+            return;
+        }
+
+        try {
+            await db.collection('profile').doc('admin').set(newProfile);
+            console.log('[Firebase] Profil admin berhasil disimpan ke Firestore.');
+            // Tidak perlu setAdminP — listener onSnapshot akan otomatis update UI
+        } catch (err) {
+            console.error('[Firebase] Gagal menyimpan profil:', err.message);
+            // Fallback lokal agar UX tidak broken
+            setAdminP(newProfile);
+        }
     }
     const notifications = useMemo(() => [...content].sort((a, b) => b.uploadedAt - a.uploadedAt).slice(0, 15), [content]);
     const unreadCount = useMemo(() => notifications.filter(n => !readIds.has(n.id)).length, [notifications, readIds]);
@@ -234,7 +559,7 @@ function AppProvider({ children }) {
             currentUser, isAdmin, users,
             activeTab, setActiveTab,
             popup, setPopup,
-            content, addContent, deleteContent, updateContent,
+            content, contentLoading, addContent, deleteContent, updateContent,
             adminProfile, updateAdminProfile,
             login, logout,
             isWishlisted, toggleWishlist, getWishlistContent,
@@ -294,20 +619,20 @@ function LoginScreen() {
     const [adminErr, setAdminErr] = useState('');
     const [loading, setLoading] = useState('');
     const isExisting = users.some(u => u.username === userInput.trim());
-    function handleLogin(role) {
+    async function handleLogin(role) {
         setLoading(role);
-        setTimeout(() => {
+        try {
             const err = role === 'user'
-                ? login('user', userInput, passInput)
-                : login('admin', adminInput);
+                ? await login('user', userInput, passInput)
+                : await login('admin', adminInput);
             if (err) {
-                if (role === 'user')
-                    setUserErr(err);
-                else
-                    setAdminErr(err);
+                if (role === 'user') setUserErr(err);
+                else setAdminErr(err);
                 setLoading('');
             }
-        }, 400);
+        } catch (e) {
+            setLoading('');
+        }
     }
     return (React.createElement("div", { className: "login-screen" },
         React.createElement("div", { className: "login-logo-circle" },
@@ -502,7 +827,7 @@ const ContentCard = React.memo(function ContentCard({ item, onOpen, onDelete, on
                 " Hapus")))));
 });
 function HomeScreen() {
-    const { content, isAdmin, deleteContent, updateContent, setPopup } = useApp();
+    const { content, contentLoading, isAdmin, deleteContent, updateContent, setPopup } = useApp();
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('ALL');
     const [editingItem, setEditingItem] = useState(null);
@@ -568,7 +893,7 @@ function HomeScreen() {
         filtered.length === 0
             ? (React.createElement("div", { className: "empty-state" },
                 React.createElement("i", { className: "fas fa-folder-open" }),
-                React.createElement("p", null, "Tidak ada konten ditemukan")))
+                React.createElement("p", null, contentLoading ? "Memuat konten dari cloud..." : "Tidak ada konten ditemukan")))
             : (React.createElement("div", { className: "content-grid", ref: scrollRef }, filtered.map((item, idx) => (React.createElement(ContentCard, { key: item.id, item: item, isAdmin: isAdmin, onOpen: () => handleOpen(item), onDelete: handleDelete, onEdit: handleEdit, isMenuOpen: openMenuId === item.id, setOpenMenuId: setOpenMenuId, style: { animationDelay: `${idx * 30}ms` } }))))),
         editingItem && (React.createElement(EditModal, { item: editingItem, onClose: () => setEditingItem(null), onSave: (id, updates) => { updateContent(id, updates); setEditingItem(null); } }))));
 }
@@ -673,6 +998,60 @@ function NotificationsScreen() {
                     React.createElement("span", { className: "notif-type", style: { color: TYPE_COLORS[item.type] } }, item.type)),
                 React.createElement("span", { className: "notif-time" }, timeAgo(item.uploadedAt)))))))));
 }
+const FAQ_DATA = [
+    {
+        q: 'Apa itu ZF Collection Templates?',
+        a: 'ZF Collection Templates adalah platform koleksi template & aset Minecraft gratis yang bisa kamu download.',
+    },
+    {
+        q: 'Bagaimana cara mendownload konten?',
+        a: 'Klik tombol "Unduh" pada kartu konten di halaman utama, atau buka detail konten lalu tekan tombol "Download". Kamu akan diarahkan ke link sumber file.',
+    },
+    {
+        q: 'File tidak bisa didownload?',
+        a: 'Pastikan link download masih aktif. Jika ada masalah, hubungi admin melalui media sosial yang tertera di halaman profil.',
+    },
+    {
+        q: 'Apa itu fitur Wishlist?',
+        a: 'Wishlist memungkinkan kamu menyimpan konten favorit agar mudah ditemukan nanti. Login sebagai User untuk mengakses fitur ini.',
+    },
+    {
+        q: 'Bagaimana cara mendukung kreator?',
+        a: 'Kamu bisa mendukung kreator melalui Saweria (ikon kopi di halaman profil). Setiap dukungan sangat berarti untuk terus menghadirkan konten berkualitas!',
+    },
+];
+function FAQSection() {
+    const [openIdx, setOpenIdx] = useState(null);
+    return (React.createElement("div", { style: { padding: '0 16px 32px' } },
+        React.createElement("div", { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, marginTop: 8 } },
+            React.createElement("i", { className: "fas fa-circle-question", style: { color: '#FF6B35', fontSize: 16 } }),
+            React.createElement("span", { style: { fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 1.2, color: 'var(--text)' } }, "FAQ")),
+        FAQ_DATA.map((item, i) => (React.createElement("div", { key: i, style: {
+                background: 'var(--surface)',
+                border: '1px solid ' + (openIdx === i ? 'rgba(255,107,53,0.35)' : 'var(--border)'),
+                borderRadius: 'var(--r)',
+                marginBottom: 8,
+                overflow: 'hidden',
+                transition: 'border-color 0.2s',
+            } },
+            React.createElement("button", { onClick: () => setOpenIdx(openIdx === i ? null : i), style: {
+                    width: '100%', display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between', gap: 10,
+                    padding: '12px 14px', background: 'transparent',
+                    color: 'var(--text)', fontSize: 13, fontWeight: 600,
+                    textAlign: 'left', cursor: 'pointer',
+                } },
+                React.createElement("span", null, item.q),
+                React.createElement("i", { className: `fas fa-chevron-${openIdx === i ? 'up' : 'down'}`, style: { fontSize: 11, color: 'var(--text-muted)', flexShrink: 0, transition: 'transform 0.2s' } })),
+            openIdx === i && (React.createElement("div", { style: {
+                    padding: '0 14px 13px',
+                    fontSize: 12,
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.65,
+                    borderTop: '1px solid var(--border)',
+                    paddingTop: 10,
+                } }, item.a)))))));
+}
 function ProfileScreen() {
     const { adminProfile, updateAdminProfile, isAdmin, logout, currentUser } = useApp();
     const [editMode, setEditMode] = useState(false);
@@ -730,9 +1109,7 @@ function ProfileScreen() {
             editMode ? (React.createElement(React.Fragment, null,
                 React.createElement("input", { className: "edit-field", value: form.name, placeholder: "Nama", onChange: e => setForm(f => (Object.assign(Object.assign({}, f), { name: e.target.value }))), style: { textAlign: 'center', marginBottom: 4 } }),
                 React.createElement("input", { className: "edit-field", value: form.bio, placeholder: "Bio / Deskripsi", onChange: e => setForm(f => (Object.assign(Object.assign({}, f), { bio: e.target.value }))), style: { textAlign: 'center' } }))) : (React.createElement(React.Fragment, null,
-                React.createElement("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } },
-                    React.createElement("p", { className: "profile-name-text" }, adminProfile.name),
-                    React.createElement("img", { src: "data:image/webp;base64,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", alt: "Verified", style: { width: 20, height: 20, objectFit: 'contain', pointerEvents: 'none', userSelect: 'none', WebkitTouchCallout: 'none', flexShrink: 0, position: 'relative', top: -2 }, draggable: "false" })),
+                React.createElement("p", { className: "profile-name-text" }, adminProfile.name),
                 React.createElement("p", { className: "profile-bio-text" }, adminProfile.bio))),
             React.createElement("div", { className: "profile-divider" }),
             React.createElement("div", { className: "social-row" },
@@ -764,7 +1141,8 @@ function ProfileScreen() {
             "Login sebagai: ",
             React.createElement("strong", null,
                 "@",
-                currentUser.username)))));
+                currentUser.username))),
+        React.createElement(FAQSection, null)));
 }
 function WishlistScreen() {
     const { getWishlistContent, toggleWishlist, setPopup, currentUser, isAdmin } = useApp();
