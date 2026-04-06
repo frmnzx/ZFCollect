@@ -104,6 +104,11 @@ function getSocialUrl(social) {
     const plat = SOCIAL_PLATFORMS.find(p => p.key === social.platform);
     return plat ? plat.url(social.username) : null;
 }
+// Pre-memoized list of social platform images to avoid re-render delay
+const SOCIAL_PLATFORM_IMGS = SOCIAL_PLATFORMS.map(p => (
+    React.createElement('img', { src: p.img, alt: p.key, style: { width: 18, height: 18, objectFit: 'contain', pointerEvents: 'none', userSelect: 'none', WebkitTouchCallout: 'none' }, draggable: 'false' })
+));
+
 const DEMO_GRADIENTS = [
     'linear-gradient(140deg,#1a3a2e,#2d6b4f)',
     'linear-gradient(140deg,#2b1a2e,#6b2d68)',
@@ -555,10 +560,12 @@ function AppProvider({ children }) {
     function markAllRead() {
         setReadIds(new Set(notifications.map(n => n.id)));
     }
+    const [editingItem, setEditingItem] = React.useState(null);
     return (React.createElement(AppCtx.Provider, { value: {
             currentUser, isAdmin, users,
             activeTab, setActiveTab,
             popup, setPopup,
+            editingItem, setEditingItem,
             content, contentLoading, addContent, deleteContent, updateContent,
             adminProfile, updateAdminProfile,
             login, logout,
@@ -701,74 +708,96 @@ function EditModal({ item, onClose, onSave }) {
     const [errors, setErrors] = useState({});
     function validate() {
         const errs = {};
-        if (!form.name.trim())
-            errs.name = 'Nama wajib diisi';
-        if (!form.url.trim())
-            errs.url = 'URL wajib diisi';
+        if (!form.name.trim()) errs.name = 'Nama wajib diisi';
+        if (!form.url.trim()) errs.url = 'URL wajib diisi';
         setErrors(errs);
         return !Object.keys(errs).length;
     }
     function handleSave() {
-        if (!validate())
-            return;
+        if (!validate()) return;
         onSave(item.id, form);
         onClose();
     }
-    return (React.createElement("div", { className: "modal-overlay" },
-        React.createElement("div", { className: "modal-header" },
-            React.createElement("button", { className: "modal-back-btn", onClick: onClose, title: "Kembali" },
-                React.createElement("i", { className: "fas fa-arrow-left" })),
-            React.createElement("span", { className: "modal-header-title" }, "EDIT KONTEN")),
-        React.createElement("div", { className: "modal-card" },
-            React.createElement("input", { className: `upload-input${errors.name ? ' err' : ''}`, placeholder: "Nama", value: form.name, onChange: e => { setForm(f => (Object.assign(Object.assign({}, f), { name: e.target.value }))); setErrors(p => (Object.assign(Object.assign({}, p), { name: '' }))); } }),
-            errors.name && React.createElement("p", { className: "field-err" },
-                React.createElement("i", { className: "fas fa-exclamation-circle" }),
-                " ",
-                errors.name),
-            React.createElement("input", { className: "upload-input", placeholder: "Deskripsi", value: form.description, onChange: e => setForm(f => (Object.assign(Object.assign({}, f), { description: e.target.value }))) }),
-            React.createElement("input", { className: `upload-input${errors.url ? ' err' : ''}`, placeholder: "URL Download", value: form.url, onChange: e => { setForm(f => (Object.assign(Object.assign({}, f), { url: e.target.value }))); setErrors(p => (Object.assign(Object.assign({}, p), { url: '' }))); } }),
-            errors.url && React.createElement("p", { className: "field-err" },
-                React.createElement("i", { className: "fas fa-exclamation-circle" }),
-                " ",
-                errors.url),
-            React.createElement("div", { style: { display: 'flex', gap: 8 } },
-                React.createElement("div", { className: "type-selector", style: { flex: 1 } },
-                    React.createElement("button", { className: "type-selector-btn", onClick: () => setShowTypeDD(p => !p) },
-                        React.createElement("span", { style: { color: TYPE_COLORS[form.type] || '#fff' } }, form.type),
-                        React.createElement("i", { className: `fas fa-chevron-${showTypeDD ? 'up' : 'down'}` })),
-                    showTypeDD && (React.createElement("div", { className: "type-dropdown" }, TYPES.map(t => (React.createElement("button", { key: t, className: `type-opt${form.type === t ? ' sel' : ''}`, style: { color: TYPE_COLORS[t] }, onClick: () => { setForm(f => (Object.assign(Object.assign({}, f), { type: t }))); setShowTypeDD(false); } }, t)))))),
-                React.createElement("div", { className: "type-selector", style: { flex: 1 } },
-                    React.createElement("button", { className: "type-selector-btn", onClick: () => setShowCatDD(p => !p) },
-                        React.createElement("span", { style: { color: '#ffffff' } }, form.category || 'Label'),
-                        React.createElement("i", { className: `fas fa-chevron-${showCatDD ? 'up' : 'down'}` })),
-                    showCatDD && (React.createElement("div", { className: "type-dropdown" }, CATEGORIES.map(c => (React.createElement("button", { key: c, className: `type-opt${form.category === c ? ' sel' : ''}`, style: { color: CATEGORY_COLORS[c] || '#ffffff' }, onClick: () => { setForm(f => (Object.assign(Object.assign({}, f), { category: c }))); setShowCatDD(false); } }, c))))))),
-            React.createElement("div", { className: "upload-section-divider" },
-                React.createElement("span", null, "Info Uploader")),
-            React.createElement("input", { className: "upload-input", placeholder: "Username uploader (cth: zfirr)", value: form.uploaderUsername, onChange: e => setForm(f => (Object.assign(Object.assign({}, f), { uploaderUsername: e.target.value }))) }),
-            React.createElement("div", { className: "uploader-social-row" },
-                React.createElement("div", { className: "social-platform-wrap" },
-                    React.createElement("button", { className: "social-platform-btn", onClick: () => setShowSocialDD(p => !p), type: "button" }, (() => {
-                        const plat = SOCIAL_PLATFORMS.find(p => p.key === form.uploaderSocial.platform) || SOCIAL_PLATFORMS[0];
-                        return (React.createElement(React.Fragment, null,
-                            React.createElement("img", { src: plat.img, alt: plat.key, style: { width: 18, height: 18, objectFit: 'contain', pointerEvents: 'none', userSelect: 'none', WebkitTouchCallout: 'none' }, draggable: "false" }),
+    const plat = SOCIAL_PLATFORMS.find(p => p.key === form.uploaderSocial.platform) || SOCIAL_PLATFORMS[0];
+    return React.createElement("div", { className: "popup-overlay", onClick: onClose },
+        React.createElement("div", { className: "popup-sheet", onClick: e => e.stopPropagation(), style: { maxHeight: '92vh', overflowY: 'auto' } },
+            React.createElement("div", {
+                className: "popup-thumb",
+                style: { background: item.gradient || '#1a1a1a', minHeight: 120, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }
+            },
+                item.thumbnail
+                    ? React.createElement("img", { src: item.thumbnail, alt: item.name, style: { width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 } })
+                    : React.createElement("div", { className: "thumb-placeholder" },
+                        React.createElement("i", { className: "fas fa-image", style: { fontSize: 40 } })
+                    ),
+                React.createElement("button", { className: "popup-close-btn", onClick: onClose },
+                    React.createElement("i", { className: "fas fa-times" })
+                ),
+                React.createElement("div", { style: { position: 'absolute', bottom: 10, left: 12, background: 'rgba(0,0,0,0.7)', borderRadius: 20, padding: '3px 10px', display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: '#FF6B35', zIndex: 2 } },
+                    React.createElement("i", { className: "fas fa-pen", style: { fontSize: 9 } }),
+                    React.createElement("span", null, "EDIT KONTEN")
+                )
+            ),
+            React.createElement("div", { className: "popup-body" },
+                React.createElement("input", { className: "upload-input" + (errors.name ? ' err' : ''), placeholder: "Nama", value: form.name, style: { marginBottom: 8 }, onChange: e => { setForm(f => Object.assign({}, f, { name: e.target.value })); setErrors(p => Object.assign({}, p, { name: '' })); } }),
+                errors.name && React.createElement("p", { className: "field-err", style: { marginBottom: 6 } }, React.createElement("i", { className: "fas fa-exclamation-circle" }), " ", errors.name),
+                React.createElement("input", { className: "upload-input", placeholder: "Deskripsi", value: form.description, style: { marginBottom: 8 }, onChange: e => setForm(f => Object.assign({}, f, { description: e.target.value })) }),
+                React.createElement("input", { className: "upload-input" + (errors.url ? ' err' : ''), placeholder: "URL Download", value: form.url, style: { marginBottom: 8 }, onChange: e => { setForm(f => Object.assign({}, f, { url: e.target.value })); setErrors(p => Object.assign({}, p, { url: '' })); } }),
+                errors.url && React.createElement("p", { className: "field-err", style: { marginBottom: 6 } }, React.createElement("i", { className: "fas fa-exclamation-circle" }), " ", errors.url),
+                React.createElement("div", { style: { display: 'flex', gap: 8, marginBottom: 8 } },
+                    React.createElement("div", { className: "type-selector", style: { flex: 1 } },
+                        React.createElement("button", { className: "type-selector-btn", onClick: () => setShowTypeDD(p => !p) },
+                            React.createElement("span", { style: { color: TYPE_COLORS[form.type] || '#fff' } }, form.type),
+                            React.createElement("i", { className: "fas fa-chevron-" + (showTypeDD ? 'up' : 'down') })
+                        ),
+                        showTypeDD && React.createElement("div", { className: "type-dropdown" },
+                            TYPES.map(t => React.createElement("button", { key: t, className: "type-opt" + (form.type === t ? ' sel' : ''), style: { color: TYPE_COLORS[t] }, onClick: () => { setForm(f => Object.assign({}, f, { type: t })); setShowTypeDD(false); } }, t))
+                        )
+                    ),
+                    React.createElement("div", { className: "type-selector", style: { flex: 1 } },
+                        React.createElement("button", { className: "type-selector-btn", onClick: () => setShowCatDD(p => !p) },
+                            React.createElement("span", { style: { color: '#fff' } }, form.category || 'Label'),
+                            React.createElement("i", { className: "fas fa-chevron-" + (showCatDD ? 'up' : 'down') })
+                        ),
+                        showCatDD && React.createElement("div", { className: "type-dropdown" },
+                            CATEGORIES.map(c => React.createElement("button", { key: c, className: "type-opt" + (form.category === c ? ' sel' : ''), style: { color: CATEGORY_COLORS[c] || '#fff' }, onClick: () => { setForm(f => Object.assign({}, f, { category: c })); setShowCatDD(false); } }, c))
+                        )
+                    )
+                ),
+                React.createElement("div", { className: "upload-section-divider" },
+                    React.createElement("span", null, "Info Uploader")
+                ),
+                React.createElement("input", { className: "upload-input", placeholder: "Username uploader (cth: zfirr)", value: form.uploaderUsername, style: { marginBottom: 8 }, onChange: e => setForm(f => Object.assign({}, f, { uploaderUsername: e.target.value })) }),
+                React.createElement("div", { className: "uploader-social-row", style: { marginBottom: 14 } },
+                    React.createElement("div", { className: "social-platform-wrap" },
+                        React.createElement("button", { className: "social-platform-btn", type: "button", onClick: () => setShowSocialDD(p => !p) },
+                            SOCIAL_PLATFORM_IMGS[SOCIAL_PLATFORMS.findIndex(p2 => p2.key === plat.key)],
                             React.createElement("span", null, plat.key),
-                            React.createElement("i", { className: `fas fa-chevron-${showSocialDD ? 'up' : 'down'}`, style: { fontSize: 10 } })));
-                    })()),
-                    showSocialDD && (React.createElement("div", { className: "social-platform-dropdown" }, SOCIAL_PLATFORMS.map(p => (React.createElement("button", { key: p.key, className: `social-plat-opt${form.uploaderSocial.platform === p.key ? ' sel' : ''}`, onClick: () => {
-                            setForm(f => (Object.assign(Object.assign({}, f), { uploaderSocial: Object.assign(Object.assign({}, f.uploaderSocial), { platform: p.key }) })));
-                            setShowSocialDD(false);
-                        }, type: "button" },
-                        React.createElement("img", { src: p.img, alt: p.key, style: { width: 18, height: 18, objectFit: 'contain', pointerEvents: 'none', userSelect: 'none', WebkitTouchCallout: 'none' }, draggable: "false" }),
-                        React.createElement("span", null, p.key))))))),
-                React.createElement("input", { className: "upload-input social-uname-input", placeholder: "Username / handle", value: form.uploaderSocial.username, onChange: e => setForm(f => (Object.assign(Object.assign({}, f), { uploaderSocial: Object.assign(Object.assign({}, f.uploaderSocial), { username: e.target.value }) }))) })),
-            React.createElement("div", { className: "modal-inline-btn-row" },
-                React.createElement("button", { className: "action-btn secondary", onClick: onClose },
-                    React.createElement("i", { className: "fas fa-times" }),
-                    " Cancel"),
-                React.createElement("button", { className: "action-btn primary", onClick: handleSave },
-                    React.createElement("i", { className: "fas fa-check" }),
-                    " Done")))));
+                            React.createElement("i", { className: "fas fa-chevron-" + (showSocialDD ? 'up' : 'down'), style: { fontSize: 10 } })
+                        ),
+                        showSocialDD && React.createElement("div", { className: "social-platform-dropdown" },
+                            SOCIAL_PLATFORMS.map((p, i) => React.createElement("button", { key: p.key, className: "social-plat-opt" + (form.uploaderSocial.platform === p.key ? ' sel' : ''), type: "button", onClick: () => { setForm(f => Object.assign({}, f, { uploaderSocial: Object.assign({}, f.uploaderSocial, { platform: p.key }) })); setShowSocialDD(false); } },
+                                SOCIAL_PLATFORM_IMGS[i],
+                                React.createElement("span", null, p.key)
+                            ))
+                        )
+                    ),
+                    React.createElement("input", { className: "upload-input social-uname-input", placeholder: "Username / handle", value: form.uploaderSocial.username, onChange: e => setForm(f => Object.assign({}, f, { uploaderSocial: Object.assign({}, f.uploaderSocial, { username: e.target.value }) })) })
+                ),
+                React.createElement("div", { className: "popup-action-row" },
+                    React.createElement("button", { className: "btn-dl", style: { background: 'var(--surface2)', color: 'var(--text)', flex: 'none', width: 46, height: 46, borderRadius: '50%', padding: 0, border: '1px solid var(--border2)' }, onClick: onClose },
+                        React.createElement("i", { className: "fas fa-times" })
+                    ),
+                    React.createElement("button", { className: "btn-dl", onClick: handleSave },
+                        React.createElement("i", { className: "fas fa-check" }),
+                        " Simpan"
+                    )
+                )
+            )
+        )
+    );
 }
+
 const ContentCard = React.memo(function ContentCard({ item, onOpen, onDelete, onEdit, isAdmin, isMenuOpen, setOpenMenuId }) {
     const setMenuOpen = (val) => setOpenMenuId(val ? item.id : null);
     const menuRef = useRef();
@@ -849,10 +878,9 @@ const ContentCard = React.memo(function ContentCard({ item, onOpen, onDelete, on
                 " Hapus")))));
 });
 function HomeScreen() {
-    const { content, contentLoading, isAdmin, deleteContent, updateContent, setPopup } = useApp();
+    const { content, contentLoading, isAdmin, deleteContent, updateContent, setPopup, setEditingItem } = useApp();
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('ALL');
-    const [editingItem, setEditingItem] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
     const scrollRef = useRef();
     useEffect(() => {
@@ -917,7 +945,7 @@ function HomeScreen() {
                 React.createElement("i", { className: "fas fa-folder-open" }),
                 React.createElement("p", null, contentLoading ? "Memuat konten dari cloud..." : "Tidak ada konten ditemukan")))
             : (React.createElement("div", { className: "content-grid", ref: scrollRef }, filtered.map((item, idx) => (React.createElement(ContentCard, { key: item.id, item: item, isAdmin: isAdmin, onOpen: () => handleOpen(item), onDelete: handleDelete, onEdit: handleEdit, isMenuOpen: openMenuId === item.id, setOpenMenuId: setOpenMenuId, style: { animationDelay: `${idx * 30}ms` } }))))),
-        editingItem && (React.createElement(EditModal, { item: editingItem, onClose: () => setEditingItem(null), onSave: (id, updates) => { updateContent(id, updates); setEditingItem(null); } }))));
+));
 }
 function ContentPopup() {
     const { popup, setPopup, content, isWishlisted, toggleWishlist, currentUser, adminProfile } = useApp();
@@ -1366,15 +1394,15 @@ function UploadScreen() {
                     React.createElement("button", { className: "social-platform-btn", onClick: () => setShowSocialDD(p => !p), type: "button" }, (() => {
                         const plat = SOCIAL_PLATFORMS.find(p => p.key === form.uploaderSocial.platform) || SOCIAL_PLATFORMS[0];
                         return (React.createElement(React.Fragment, null,
-                            React.createElement("img", { src: plat.img, alt: plat.key, style: { width: 18, height: 18, objectFit: 'contain', pointerEvents: 'none', userSelect: 'none', WebkitTouchCallout: 'none' }, draggable: "false" }),
+                            SOCIAL_PLATFORM_IMGS[SOCIAL_PLATFORMS.findIndex(p2 => p2.key === plat.key)],
                             React.createElement("span", null, plat.key),
                             React.createElement("i", { className: `fas fa-chevron-${showSocialDD ? 'up' : 'down'}`, style: { fontSize: 10 } })));
                     })()),
-                    showSocialDD && (React.createElement("div", { className: "social-platform-dropdown" }, SOCIAL_PLATFORMS.map(p => (React.createElement("button", { key: p.key, className: `social-plat-opt${form.uploaderSocial.platform === p.key ? ' sel' : ''}`, onClick: () => {
+                    showSocialDD && (React.createElement("div", { className: "social-platform-dropdown" }, SOCIAL_PLATFORMS.map((p, i) => (React.createElement("button", { key: p.key, className: `social-plat-opt${form.uploaderSocial.platform === p.key ? ' sel' : ''}`, onClick: () => {
                             setForm(f => (Object.assign(Object.assign({}, f), { uploaderSocial: Object.assign(Object.assign({}, f.uploaderSocial), { platform: p.key }) })));
                             setShowSocialDD(false);
                         }, type: "button" },
-                        React.createElement("img", { src: p.img, alt: p.key, style: { width: 18, height: 18, objectFit: 'contain', pointerEvents: 'none', userSelect: 'none', WebkitTouchCallout: 'none' }, draggable: "false" }),
+                        SOCIAL_PLATFORM_IMGS[i],
                         React.createElement("span", null, p.key))))))),
                 React.createElement("input", { className: "upload-input social-uname-input", placeholder: "Username / handle", value: form.uploaderSocial.username, onChange: e => setForm(f => (Object.assign(Object.assign({}, f), { uploaderSocial: Object.assign(Object.assign({}, f.uploaderSocial), { username: e.target.value }) }))) })),
             React.createElement("button", { className: "upload-submit-btn", onClick: handleSubmit },
@@ -1382,7 +1410,7 @@ function UploadScreen() {
                 " Tambahkan Konten"))));
 }
 function App() {
-    const { currentUser, activeTab, popup } = useApp();
+    const { currentUser, activeTab, popup, editingItem, setEditingItem, updateContent } = useApp();
     if (!currentUser)
         return React.createElement(LoginScreen, null);
     const screens = {
@@ -1395,6 +1423,7 @@ function App() {
     return (React.createElement("div", { className: "app" },
         React.createElement("div", { className: "page-content" }, screens[activeTab] || screens.home),
         popup && React.createElement(ContentPopup, null),
+        editingItem && React.createElement(EditModal, { item: editingItem, onClose: () => setEditingItem(null), onSave: (id, updates) => { updateContent(id, updates); setEditingItem(null); } }),
         React.createElement(BottomNav, null)));
 }
 const rootEl = document.getElementById('root');
